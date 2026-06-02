@@ -1,0 +1,4668 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Smart Amharic ➜ PowerPoint Converter | ስማርት ፓወር ፖይንት መቀየሪያ</title>
+
+<!-- ============ PWA META TAGS ============ -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#2563eb" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="SmartPPT" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="Smart PPT Converter" />
+<meta name="description" content="ኦፍላይን ሲሰራ ኤክሴል፣ ዎርድ፣ ፒዲኤፍ ወደ ፓወር ፖይንት መቀየሪያ" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMjU2M2ViIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjOTMzM2VhIi8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzMiIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTglIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyMCIgZmlsbD0iI2ZmZmZmZiI+4pqhPC90ZXh0Pjwvc3ZnPg==" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzI1NjNlYiIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzkzMzNlYSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjEyIiBmaWxsPSJ1cmwoI2cpIi8+PHRleHQgeD0iNTAlIiB5PSI2MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IiNmZmZmZmYiPuKaoTwvdGV4dD48L3N2Zz4=" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700;800&family=Abyssinica+SIL&display=swap" rel="stylesheet">
+
+<!-- ============ CORE LIBRARIES (with multi-CDN fallback) ============ -->
+<script>
+  // Helper: load script with fallback URLs
+  function loadScriptWithFallback(urls, globalCheck, callback) {
+    let i = 0;
+    function tryNext() {
+      if (i >= urls.length) {
+        console.error('All CDNs failed for:', globalCheck);
+        if (callback) callback(false);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = urls[i++];
+      s.onload = () => {
+        if (typeof window[globalCheck] !== 'undefined') {
+          if (callback) callback(true);
+        } else { tryNext(); }
+      };
+      s.onerror = tryNext;
+      document.head.appendChild(s);
+    }
+    tryNext();
+  }
+
+  // CRITICAL: PptxGenJS - try 3 CDNs
+  loadScriptWithFallback([
+    'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+    'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.min.js'
+  ], 'PptxGenJS');
+
+  // Mammoth (DOCX)
+  loadScriptWithFallback([
+    'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js',
+    'https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js'
+  ], 'mammoth');
+
+  // SheetJS (Excel)
+  loadScriptWithFallback([
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+  ], 'XLSX');
+
+  // PDF.js
+  loadScriptWithFallback([
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js'
+  ], 'pdfjsLib', (ok) => {
+    if (ok && window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  });
+
+  // Tesseract (OCR)
+  loadScriptWithFallback([
+    'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js',
+    'https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js'
+  ], 'Tesseract');
+
+  // JSZip (used by PptxGenJS internally)
+  loadScriptWithFallback([
+    'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+    'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js'
+  ], 'JSZip');
+</script>
+<style>
+/* =========================================================
+   Smart PPT Converter - Professional Styling
+   ========================================================= */
+
+:root {
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-2: #fbfcfe;
+  --text: #1a2238;
+  --text-soft: #5b6b8a;
+  --border: #e4e9f2;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-2: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
+  --shadow-sm: 0 2px 8px rgba(20, 30, 60, 0.06);
+  --shadow-md: 0 8px 28px rgba(20, 30, 60, 0.10);
+  --shadow-lg: 0 18px 48px rgba(20, 30, 60, 0.14);
+  --radius: 14px;
+}
+
+body.dark {
+  --bg: #0b1020;
+  --panel: #131a2e;
+  --panel-2: #182142;
+  --text: #e7ecf7;
+  --text-soft: #93a0c2;
+  --border: #243056;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 28px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans Ethiopic', 'Abyssinica SIL', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+/* ---------- TOP BAR ---------- */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(10px);
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 48px; height: 48px;
+  background: var(--gradient-2);
+  border-radius: 12px;
+  display: grid; place-items: center;
+  font-size: 26px;
+  box-shadow: var(--shadow-md);
+}
+.brand h1 {
+  margin: 0; font-size: 20px; font-weight: 800;
+  letter-spacing: -0.2px;
+}
+.brand h1 span {
+  background: var(--gradient-2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.tagline {
+  margin: 2px 0 0; font-size: 12.5px; color: var(--text-soft);
+}
+.actions { display: flex; gap: 10px; }
+
+/* ---------- BUTTONS ---------- */
+.primary-btn, .secondary-btn, .ghost-btn, .mega-btn {
+  cursor: pointer; border: none; font-family: inherit;
+  font-weight: 600; border-radius: 10px;
+  transition: all 0.2s ease;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.primary-btn {
+  background: var(--gradient-2);
+  color: white; padding: 12px 24px; font-size: 14.5px;
+  box-shadow: var(--shadow-md);
+}
+.primary-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.secondary-btn {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); padding: 10px 18px; font-size: 14px;
+}
+.secondary-btn:hover { background: var(--bg); border-color: var(--primary); }
+
+.ghost-btn {
+  background: transparent; color: var(--text-soft);
+  border: 1px solid var(--border); padding: 8px 14px; font-size: 13px;
+  text-decoration: none;
+}
+.ghost-btn:hover { color: var(--text); border-color: var(--primary); }
+
+.mega-btn {
+  background: var(--gradient-2);
+  color: white; padding: 18px 36px; font-size: 17px; font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  letter-spacing: 0.2px;
+}
+.mega-btn:hover { transform: translateY(-3px) scale(1.02); }
+.mega-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ---------- CONTAINER & CARDS ---------- */
+.container {
+  max-width: 1100px;
+  margin: 28px auto;
+  padding: 0 24px;
+  display: grid; gap: 22px;
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  box-shadow: var(--shadow-sm);
+}
+.card-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.card-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+.step-no {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--gradient-2);
+  color: white; font-weight: 700;
+  display: grid; place-items: center;
+  font-size: 15px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- DROPZONE ---------- */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--panel-2);
+  transition: all 0.25s;
+  cursor: pointer;
+}
+.dropzone.drag {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.06);
+  transform: scale(1.01);
+}
+.dz-icon { font-size: 52px; margin-bottom: 8px; }
+.dropzone h3 { margin: 8px 0 4px; font-size: 17px; }
+.dropzone p { margin: 4px 0 16px; color: var(--text-soft); font-size: 13.5px; }
+
+.or-divider {
+  display: flex; align-items: center; gap: 14px; margin: 20px 0;
+  color: var(--text-soft); font-size: 13px;
+}
+.or-divider::before, .or-divider::after {
+  content: ""; flex: 1; height: 1px; background: var(--border);
+}
+
+.text-input-block label {
+  display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;
+}
+.text-input-block textarea {
+  width: 100%; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 10px;
+  font-family: inherit; font-size: 14px; resize: vertical;
+  background: var(--panel-2); color: var(--text);
+}
+.text-input-block textarea:focus { outline: none; border-color: var(--primary); }
+.text-input-block button { margin-top: 10px; }
+
+.file-list { margin-top: 18px; display: grid; gap: 10px; }
+.file-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 10px; font-size: 14px;
+}
+.file-item .file-icon { font-size: 22px; }
+.file-item .file-name { flex: 1; font-weight: 600; }
+.file-item .file-size { color: var(--text-soft); font-size: 12px; }
+.file-item .file-remove {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--danger); font-size: 18px;
+}
+
+/* ---------- SETTINGS ---------- */
+.settings-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 22px 0 12px;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, rgba(37,99,235,0.08), transparent);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 8px 8px 0;
+  letter-spacing: 0.3px;
+}
+.settings-group-title:first-of-type { margin-top: 0; }
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.setting input[type="number"] {
+  width: 100%; padding: 11px 12px;
+  border: 1px solid var(--border); border-radius: 9px;
+  font-family: inherit; font-size: 14px;
+  background: var(--panel-2); color: var(--text);
+}
+.setting input[type="number"]:focus { outline: none; border-color: var(--primary); }
+
+.setting input[type="color"] {
+  width: 100%; height: 42px; cursor: pointer;
+  border: 1px solid var(--border); border-radius: 9px;
+  background: var(--panel-2); padding: 4px;
+}
+
+.lib-status {
+  font-size: 12px; padding: 6px 10px; border-radius: 100px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  color: var(--text-soft); font-weight: 600;
+}
+.lib-status.ok { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #059669; }
+.lib-status.err { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #dc2626; }
+.setting label {
+  display: block; font-size: 13px; font-weight: 600;
+  margin-bottom: 6px; color: var(--text-soft);
+}
+.setting input[type="text"], .setting select {
+  width: 100%; padding: 11px 12px;
+  border: 1px solid var(--border); border-radius: 9px;
+  font-family: inherit; font-size: 14px;
+  background: var(--panel-2); color: var(--text);
+}
+.setting input:focus, .setting select:focus {
+  outline: none; border-color: var(--primary);
+}
+.toggle-row { display: flex; align-items: center; }
+.switch-label {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; font-size: 14px; color: var(--text);
+  font-weight: 500;
+}
+.switch-label input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: var(--primary);
+}
+
+/* ---------- CONVERT ---------- */
+.convert-actions {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  margin-bottom: 18px;
+}
+
+.progress-wrap { margin-top: 18px; }
+.progress-bar {
+  width: 100%; height: 12px;
+  background: var(--bg); border-radius: 100px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: var(--gradient-2);
+  transition: width 0.3s ease;
+  border-radius: 100px;
+}
+.progress-text {
+  margin-top: 8px; text-align: center;
+  font-size: 13.5px; color: var(--text-soft);
+}
+
+.result-box {
+  margin-top: 16px; padding: 18px;
+  background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(37,99,235,0.05));
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 12px;
+  text-align: center;
+}
+.result-box h3 { margin: 0 0 8px; color: var(--success); }
+.result-box .download-btn {
+  display: inline-block; margin-top: 10px;
+  background: var(--success); color: white;
+  padding: 12px 22px; border-radius: 10px;
+  text-decoration: none; font-weight: 700;
+  box-shadow: var(--shadow-md);
+}
+.result-box .download-btn:hover { transform: translateY(-2px); }
+
+/* ---------- PREVIEW ---------- */
+.slides-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  max-height: 600px; overflow-y: auto;
+  padding: 4px;
+}
+.slide-preview {
+  aspect-ratio: 16/9;
+  background: white; color: #222;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  font-size: 11px;
+}
+.slide-preview .sp-num {
+  position: absolute; top: 6px; right: 8px;
+  font-size: 9px; color: #999;
+}
+.slide-preview .sp-title {
+  font-size: 14px; font-weight: 700;
+  margin-bottom: 8px; color: var(--primary-dark);
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 4px;
+}
+.slide-preview .sp-body {
+  font-size: 10.5px; line-height: 1.5;
+  flex: 1; overflow: hidden;
+}
+.slide-preview .sp-body ul {
+  margin: 0; padding-left: 14px;
+}
+.slide-preview .sp-body li { margin-bottom: 3px; }
+
+/* ---------- HELP ---------- */
+.help-list { padding-left: 22px; line-height: 1.9; color: var(--text-soft); }
+.help-list li { margin-bottom: 4px; }
+
+footer {
+  text-align: center; padding: 30px 20px;
+  color: var(--text-soft); font-size: 13px;
+}
+
+/* ---------- TOAST ---------- */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--text); color: var(--panel);
+  padding: 12px 22px; border-radius: 100px;
+  font-size: 14px; font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transition: all 0.3s ease;
+  z-index: 999;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.toast.error { background: var(--danger); color: white; }
+.toast.success { background: var(--success); color: white; }
+
+/* ===================================================================
+   PART 2: POWERPOINT-STYLE RIBBON, PWA, SLIDESHOW, ADVANCED FEATURES
+   =================================================================== */
+
+/* ---------- RIBBON (PowerPoint-like Toolbar) ---------- */
+.ribbon {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 84px;
+  z-index: 49;
+}
+body.dark .ribbon { background: var(--panel); }
+
+.ribbon-tabs {
+  display: flex; align-items: center;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.ribbon-tab {
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  position: relative;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ribbon-tab:hover { color: var(--primary); background: rgba(37,99,235,0.06); }
+.ribbon-tab.active {
+  color: var(--primary);
+  background: var(--panel);
+}
+.ribbon-tab.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 10%; right: 10%;
+  height: 3px; background: var(--gradient-2); border-radius: 3px 3px 0 0;
+}
+.ribbon-tab.file-tab {
+  background: var(--gradient-2); color: white;
+  border-radius: 6px; margin: 5px 8px 5px 0;
+  padding: 7px 18px;
+}
+.ribbon-tab.file-tab:hover { color: white; opacity: 0.9; }
+
+.ribbon-content {
+  display: none;
+  padding: 10px 16px;
+  background: var(--panel);
+  min-height: 80px;
+  align-items: stretch;
+  gap: 4px;
+  overflow-x: auto;
+}
+.ribbon-content.active { display: flex; }
+
+.ribbon-group {
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 4px 12px;
+  border-right: 1px solid var(--border);
+  min-width: 80px;
+}
+.ribbon-group:last-child { border-right: none; }
+.ribbon-group-label {
+  font-size: 10.5px;
+  color: var(--text-soft);
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+.ribbon-buttons {
+  display: flex; gap: 4px;
+  flex: 1; align-items: stretch;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ribbon-btn {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 6px 10px;
+  background: transparent; border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text);
+  min-width: 52px;
+  gap: 4px;
+}
+.ribbon-btn:hover { background: rgba(37,99,235,0.1); }
+.ribbon-btn:active { background: rgba(37,99,235,0.2); }
+.ribbon-btn.large { padding: 4px 10px 6px; }
+.ribbon-btn .ic { font-size: 22px; line-height: 1; }
+.ribbon-btn .ic-sm { font-size: 16px; }
+.ribbon-btn .lbl { font-size: 10.5px; font-weight: 500; }
+.ribbon-btn.primary-action {
+  background: var(--gradient-2); color: white;
+  padding: 10px 16px;
+}
+.ribbon-btn.primary-action:hover { background: var(--gradient-2); opacity: 0.92; transform: translateY(-1px); }
+.ribbon-btn-row {
+  display: flex; gap: 2px; flex-direction: column;
+}
+.ribbon-btn-row .ribbon-btn { flex-direction: row; min-width: 0; padding: 4px 8px; }
+
+.ribbon-select {
+  padding: 6px 8px; font-size: 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 5px;
+  font-family: inherit; min-width: 100px;
+  cursor: pointer;
+}
+.ribbon-input-num {
+  width: 50px; padding: 6px 6px; font-size: 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 5px;
+  text-align: center; font-family: inherit;
+}
+.ribbon-color {
+  width: 32px; height: 32px; padding: 2px;
+  border: 1px solid var(--border); border-radius: 5px;
+  cursor: pointer; background: var(--panel-2);
+}
+
+/* ---------- PWA Install Banner ---------- */
+.install-banner {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-lg);
+  max-width: 340px;
+  z-index: 998;
+  display: none;
+  animation: slideUp 0.4s ease;
+}
+.install-banner.show { display: block; }
+@keyframes slideUp {
+  from { transform: translateY(120px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.install-banner h4 { margin: 0 0 6px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.install-banner p { margin: 0 0 12px; font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+.install-banner .ib-actions { display: flex; gap: 8px; }
+.install-banner button {
+  flex: 1; padding: 9px; border-radius: 8px; border: none;
+  font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
+}
+.install-banner .ib-install {
+  background: var(--gradient-2); color: white;
+}
+.install-banner .ib-later {
+  background: var(--panel-2); color: var(--text-soft);
+  border: 1px solid var(--border);
+}
+.install-banner .ib-close {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; padding: 4px; flex: none;
+  width: 24px; color: var(--text-soft); font-size: 18px;
+}
+
+/* ---------- Status pill in top bar ---------- */
+.online-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; padding: 5px 10px; border-radius: 100px;
+  background: rgba(16,185,129,0.12); color: #059669;
+  font-weight: 600;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+.online-status.offline {
+  background: rgba(245,158,11,0.12); color: #d97706;
+  border-color: rgba(245,158,11,0.3);
+}
+.online-status .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ---------- SLIDE SHOW MODE ---------- */
+.slideshow-overlay {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+}
+.slideshow-overlay.show { display: flex; }
+.slideshow-stage {
+  flex: 1;
+  display: grid; place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+.slideshow-slide {
+  width: 90vw; max-width: 1280px;
+  aspect-ratio: 16/9;
+  background: white; color: #222;
+  border-radius: 8px;
+  padding: 50px 60px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.slideshow-slide.anim-fade { opacity: 0; }
+.slideshow-slide.anim-fade.in { opacity: 1; }
+.slideshow-slide.anim-slide-r { transform: translateX(100%); opacity: 0; }
+.slideshow-slide.anim-slide-r.in { transform: translateX(0); opacity: 1; }
+.slideshow-slide.anim-slide-l { transform: translateX(-100%); opacity: 0; }
+.slideshow-slide.anim-slide-l.in { transform: translateX(0); opacity: 1; }
+.slideshow-slide.anim-zoom { transform: scale(0.6); opacity: 0; }
+.slideshow-slide.anim-zoom.in { transform: scale(1); opacity: 1; }
+.slideshow-slide.anim-flip { transform: rotateY(90deg); opacity: 0; }
+.slideshow-slide.anim-flip.in { transform: rotateY(0); opacity: 1; }
+.slideshow-slide.anim-rotate { transform: rotate(15deg) scale(0.8); opacity: 0; }
+.slideshow-slide.anim-rotate.in { transform: rotate(0) scale(1); opacity: 1; }
+
+.slideshow-slide h1 {
+  font-size: 44px; margin: 0 0 8px;
+  color: #1d4ed8; font-weight: 700;
+  border-bottom: 3px solid #f59e0b;
+  padding-bottom: 12px;
+}
+.slideshow-slide h2 {
+  font-size: 24px; margin: 0 0 16px;
+  color: #f59e0b; font-style: italic; font-weight: 500;
+}
+.slideshow-slide .ss-body { flex: 1; overflow: hidden; }
+.slideshow-slide ul {
+  font-size: 22px; line-height: 1.7;
+  padding-left: 36px; margin: 0;
+}
+.slideshow-slide ul li { margin-bottom: 10px; }
+.slideshow-slide .ss-continue {
+  font-size: 16px; color: #f59e0b; font-style: italic;
+  margin-bottom: 8px;
+}
+.slideshow-slide .ss-table {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+}
+.slideshow-slide .ss-table th, .slideshow-slide .ss-table td {
+  border: 1px solid #ccc; padding: 8px 12px;
+}
+.slideshow-slide .ss-table th { background: #1d4ed8; color: white; }
+.slideshow-slide .ss-table tr:nth-child(even) { background: #f8fafc; }
+
+.slideshow-controls {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 8px;
+  background: rgba(20,20,30,0.85); backdrop-filter: blur(10px);
+  padding: 10px 16px; border-radius: 100px;
+  z-index: 10000;
+}
+.slideshow-controls button {
+  background: rgba(255,255,255,0.1); color: white;
+  border: none; padding: 8px 14px; border-radius: 50px;
+  cursor: pointer; font-size: 14px; font-family: inherit;
+  font-weight: 600; transition: all 0.2s;
+}
+.slideshow-controls button:hover { background: rgba(255,255,255,0.25); }
+.slideshow-controls .ss-counter {
+  color: white; padding: 8px 14px; font-size: 13px;
+  background: rgba(255,255,255,0.1); border-radius: 50px;
+}
+.slideshow-controls .ss-exit {
+  background: rgba(239,68,68,0.8);
+}
+.slideshow-controls .ss-exit:hover { background: rgba(239,68,68,1); }
+
+.slideshow-progress {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 3px; background: rgba(255,255,255,0.1);
+  z-index: 10001;
+}
+.slideshow-progress-bar {
+  height: 100%; background: var(--gradient-2);
+  transition: width 0.3s ease;
+}
+
+/* ---------- RECORDER ---------- */
+.recorder-panel {
+  background: var(--panel-2);
+  padding: 18px; border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-top: 16px;
+  display: none;
+}
+.recorder-panel.show { display: block; }
+.recorder-status {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.rec-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--danger); display: inline-block;
+  animation: recPulse 1s ease infinite;
+}
+@keyframes recPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+.recorder-time {
+  font-family: 'Courier New', monospace;
+  font-size: 22px; font-weight: 700;
+  color: var(--text);
+}
+.recorder-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.recordings-list { margin-top: 12px; display: grid; gap: 8px; }
+.recording-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.recording-item audio { flex: 1; min-width: 0; height: 36px; }
+.recording-item button {
+  background: transparent; border: none; color: var(--danger);
+  cursor: pointer; font-size: 16px; padding: 4px 8px;
+}
+
+/* ---------- COMMENT / REVIEW PANEL ---------- */
+.comments-panel { display: none; }
+.comments-panel.show { display: block; }
+.comment-item {
+  display: flex; gap: 10px;
+  padding: 12px; margin-bottom: 8px;
+  background: rgba(245,158,11,0.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+}
+.comment-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--gradient-2); color: white;
+  display: grid; place-items: center;
+  font-weight: 700; flex-shrink: 0;
+}
+.comment-body { flex: 1; }
+.comment-author { font-weight: 700; font-size: 13px; }
+.comment-time { font-size: 11px; color: var(--text-soft); margin-left: 8px; }
+.comment-text { font-size: 13.5px; margin-top: 4px; }
+.comment-del {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--danger); font-size: 14px; align-self: flex-start;
+}
+
+/* ---------- INSERT GALLERY ---------- */
+.insert-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
+  padding: 10px;
+  max-height: 240px; overflow-y: auto;
+}
+.insert-item {
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  font-size: 24px;
+  background: var(--panel-2);
+  transition: all 0.15s;
+}
+.insert-item:hover {
+  background: var(--primary); color: white;
+  transform: scale(1.1);
+}
+
+/* ---------- DESIGN GALLERY (theme picker) ---------- */
+.design-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 4px;
+}
+.design-card {
+  aspect-ratio: 16/9;
+  border: 2px solid var(--border);
+  border-radius: 10px; cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+  padding: 12px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+.design-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.design-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.3);
+}
+.design-card .dc-title {
+  font-size: 13px; font-weight: 700;
+}
+.design-card .dc-bars { display: flex; gap: 4px; }
+.design-card .dc-bar {
+  height: 6px; border-radius: 3px; flex: 1;
+}
+
+/* ---------- TRANSITION GALLERY ---------- */
+.transition-gallery, .animation-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+}
+.trans-card {
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  text-align: center;
+  background: var(--panel-2);
+  transition: all 0.15s;
+  font-size: 12px; font-weight: 600;
+}
+.trans-card:hover { background: var(--primary); color: white; }
+.trans-card.selected {
+  background: var(--primary); color: white;
+  border-color: var(--primary);
+}
+.trans-card .tc-ic { font-size: 22px; display: block; margin-bottom: 4px; }
+
+/* ---------- SLIDE THUMBNAIL PANEL ---------- */
+.slides-workspace {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  min-height: 400px;
+}
+@media (max-width: 720px) { .slides-workspace { grid-template-columns: 1fr; } }
+
+.slides-rail {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: 600px;
+}
+.rail-slide {
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  padding: 10px;
+  cursor: pointer;
+  background: var(--panel);
+  font-size: 11px;
+  transition: all 0.15s;
+  position: relative;
+}
+.rail-slide:hover { border-color: var(--primary); }
+.rail-slide.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+.rail-slide .rs-num {
+  position: absolute; top: 4px; right: 6px;
+  font-size: 10px; color: var(--text-soft); font-weight: 700;
+}
+.rail-slide .rs-title {
+  font-weight: 700; font-size: 11px;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rail-slide .rs-snippet {
+  font-size: 10px; color: var(--text-soft);
+  display: -webkit-box; -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ---------- BIG EDITOR PREVIEW ---------- */
+.slide-stage {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.stage-toolbar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.stage-toolbar button {
+  padding: 5px 10px; font-size: 12px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--panel); cursor: pointer;
+  font-family: inherit; color: var(--text);
+}
+.stage-toolbar button:hover { background: var(--primary); color: white; }
+.stage-canvas {
+  aspect-ratio: 16/9;
+  background: white; color: #222;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px 36px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.stage-canvas h2 {
+  margin: 0 0 12px; font-size: 26px;
+  color: var(--primary-dark);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+}
+.stage-canvas .sc-body { font-size: 16px; line-height: 1.7; flex: 1; overflow: hidden; }
+.stage-canvas ul { padding-left: 24px; margin: 0; }
+.stage-canvas li { margin-bottom: 6px; }
+
+/* ---------- TAB CARDS - Hide non-active main cards ---------- */
+.main-tab-card { display: none; }
+.main-tab-card.active { display: block; }
+
+/* ---------- FAB (Floating Action Button) ---------- */
+.fab {
+  position: fixed; bottom: 30px; right: 30px;
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--gradient-2); color: white;
+  border: none; cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  font-size: 28px;
+  z-index: 100;
+  display: grid; place-items: center;
+  transition: all 0.2s;
+}
+.fab:hover { transform: scale(1.1) rotate(15deg); }
+@media (max-width: 720px) {
+  .fab { bottom: 20px; right: 20px; width: 56px; height: 56px; font-size: 24px; }
+}
+
+/* ---------- HELPER TOOLTIPS ---------- */
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--panel);
+  font-size: 11px; padding: 4px 8px; border-radius: 4px;
+  white-space: nowrap; z-index: 999;
+  margin-bottom: 6px;
+  pointer-events: none;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 720px) {
+  .top-bar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
+  .brand h1 { font-size: 16px; }
+  .tagline { font-size: 11px; }
+  .container { padding: 0 14px; }
+  .card { padding: 20px 18px; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .convert-actions { flex-direction: column; }
+  .convert-actions button { width: 100%; }
+  .ribbon { top: 124px; }
+  .ribbon-content { min-height: 70px; padding: 8px 10px; }
+  .ribbon-btn { min-width: 44px; padding: 4px 6px; }
+  .ribbon-btn .ic { font-size: 18px; }
+  .ribbon-btn .lbl { font-size: 9.5px; }
+  .ribbon-group { padding: 4px 6px; min-width: 60px; }
+  .slideshow-slide { padding: 20px 26px; }
+  .slideshow-slide h1 { font-size: 26px; }
+  .slideshow-slide ul { font-size: 16px; padding-left: 24px; }
+  .stage-canvas { padding: 16px 20px; }
+  .stage-canvas h2 { font-size: 18px; }
+  .stage-canvas .sc-body { font-size: 13px; }
+}
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-soft); }
+</style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="brand">
+    <div class="logo">⚡</div>
+    <div>
+      <h1>Smart PPT <span>Converter</span></h1>
+      <p class="tagline">ኤክሴል • ዎርድ • ፒዲኤፍ • ምስል • ጽሑፍ → ፓወር ፖይንት (ኦፍላይን • በሰከንዶች ውስጥ)</p>
+    </div>
+  </div>
+  <div class="actions">
+    <span id="onlineStatus" class="online-status"><span class="dot"></span>Online</span>
+    <span id="libStatus" class="lib-status">⏳ ላይብረሪዎች በመጫን ላይ...</span>
+    <button id="installBtn" class="ghost-btn" title="Install as App" style="display:none;">📥 ጫን</button>
+    <button id="themeToggle" class="ghost-btn" title="Theme">🌓</button>
+    <a href="#help" class="ghost-btn">እርዳታ</a>
+  </div>
+</header>
+
+<!-- ============ POWERPOINT-STYLE RIBBON ============ -->
+<nav class="ribbon" id="ribbon" aria-label="PowerPoint Ribbon">
+  <div class="ribbon-tabs" role="tablist">
+    <button class="ribbon-tab file-tab" data-tab="file" role="tab">📁 ፋይል (File)</button>
+    <button class="ribbon-tab active" data-tab="home" role="tab">🏠 ሆም (Home)</button>
+    <button class="ribbon-tab" data-tab="insert" role="tab">➕ ኢንሰርት (Insert)</button>
+    <button class="ribbon-tab" data-tab="design" role="tab">🎨 ዲዛይን (Design)</button>
+    <button class="ribbon-tab" data-tab="transitions" role="tab">🔀 ትራንዚሽን (Transitions)</button>
+    <button class="ribbon-tab" data-tab="animations" role="tab">✨ አኒሜሽን (Animations)</button>
+    <button class="ribbon-tab" data-tab="slideshow" role="tab">▶ ስላይድ ሾው (Slide Show)</button>
+    <button class="ribbon-tab" data-tab="record" role="tab">🎙 ሪከርድ (Record)</button>
+    <button class="ribbon-tab" data-tab="review" role="tab">💬 ሪቪው (Review)</button>
+    <button class="ribbon-tab" data-tab="view" role="tab">👁 ቪው (View)</button>
+  </div>
+
+  <!-- HOME TAB -->
+  <div class="ribbon-content active" data-content="home">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn primary-action" id="rbnConvert" data-tip="ወደ PowerPoint ቀይር">
+          <span class="ic">⚡</span><span class="lbl">ቀይር</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ቀይር</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="rbnNew" data-tip="አዲስ ስላይድ">
+          <span class="ic">📄</span><span class="lbl">አዲስ</span>
+        </button>
+        <button class="ribbon-btn" id="rbnUpload" data-tip="ፋይል ጨምር">
+          <span class="ic">📂</span><span class="lbl">ፋይል</span>
+        </button>
+        <button class="ribbon-btn" id="rbnPaste" data-tip="ጽሑፍ ለጥፍ">
+          <span class="ic">📋</span><span class="lbl">ለጥፍ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ስላይዶች</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <select class="ribbon-select" id="rbnFont" title="ፎንት">
+          <option value="Noto Sans Ethiopic">Noto Sans Ethiopic</option>
+          <option value="Abyssinica SIL">Abyssinica SIL</option>
+          <option value="Nyala">Nyala</option>
+          <option value="Power Geez Unicode1">Power Geez</option>
+          <option value="Ethiopia Jiret">Ethiopia Jiret</option>
+          <option value="Visual Geez Unicode">Visual Geez</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+        <input type="number" class="ribbon-input-num" id="rbnFontSize" value="18" min="8" max="96" title="የፎንት መጠን" />
+      </div>
+      <span class="ribbon-group-label">ፎንት</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="rbnBold" data-tip="Bold (ቦልድ)"><span class="ic">𝐁</span><span class="lbl">Bold</span></button>
+        <button class="ribbon-btn" id="rbnItalic" data-tip="Italic"><span class="ic"><i>I</i></span><span class="lbl">Italic</span></button>
+        <button class="ribbon-btn" id="rbnUnderline" data-tip="Underline"><span class="ic"><u>U</u></span><span class="lbl">Underline</span></button>
+        <input type="color" class="ribbon-color" id="rbnTextColor" value="#1a2238" title="የጽሑፍ ቀለም" />
+      </div>
+      <span class="ribbon-group-label">ጽሑፍ ስታይል</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <select class="ribbon-select" id="rbnBullet" title="ቡሌት">
+          <option value="dot">● ክብ</option>
+          <option value="check">✔ ቼክ</option>
+          <option value="arrow">➤ ቀስት</option>
+          <option value="star">★ ኮከብ</option>
+          <option value="diamond">◆ አልማዝ</option>
+          <option value="square">▪ ካሬ</option>
+          <option value="number">1. ቁጥር</option>
+          <option value="ethiopia">፩ ኢትዮጵያዊ</option>
+          <option value="mixed">🎨 ድብልቅ</option>
+        </select>
+      </div>
+      <span class="ribbon-group-label">ቡሌት</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="rbnPreview" data-tip="ቅድመ እይታ">
+          <span class="ic">👁</span><span class="lbl">ቅድመ እይታ</span>
+        </button>
+        <button class="ribbon-btn" id="rbnSlideshow" data-tip="ስላይድ ሾው ጀምር (F5)">
+          <span class="ic">▶</span><span class="lbl">አሳይ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">አሳይ</span>
+    </div>
+  </div>
+
+  <!-- INSERT TAB -->
+  <div class="ribbon-content" data-content="insert">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="insImage" data-tip="ምስል ጨምር">
+          <span class="ic">🖼️</span><span class="lbl">ምስል</span>
+        </button>
+        <button class="ribbon-btn" id="insTable" data-tip="ሰንጠረዥ ጨምር">
+          <span class="ic">📊</span><span class="lbl">ሰንጠረዥ</span>
+        </button>
+        <button class="ribbon-btn" id="insChart" data-tip="ቻርት ጨምር">
+          <span class="ic">📈</span><span class="lbl">ቻርት</span>
+        </button>
+        <button class="ribbon-btn" id="insShape" data-tip="ቅርጽ ጨምር">
+          <span class="ic">⬛</span><span class="lbl">ቅርጽ</span>
+        </button>
+        <button class="ribbon-btn" id="insIcon" data-tip="አዶ/ኢሞጂ ጨምር">
+          <span class="ic">😀</span><span class="lbl">አዶ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ኦብጄክቶች</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="insTextBox" data-tip="ጽሑፍ ሳጥን">
+          <span class="ic">𝐀</span><span class="lbl">ጽሑፍ</span>
+        </button>
+        <button class="ribbon-btn" id="insHeader" data-tip="ራስጌ"><span class="ic">H₁</span><span class="lbl">ራስጌ</span></button>
+        <button class="ribbon-btn" id="insFooter" data-tip="እግር">
+          <span class="ic">📑</span><span class="lbl">እግር</span>
+        </button>
+        <button class="ribbon-btn" id="insDate" data-tip="ቀን & ሰዓት">
+          <span class="ic">📅</span><span class="lbl">ቀን</span>
+        </button>
+        <button class="ribbon-btn" id="insNumber" data-tip="የስላይድ ቁጥር">
+          <span class="ic">#</span><span class="lbl">ቁጥር</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ጽሑፍ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="insVideo" data-tip="ቪዲዮ ጨምር (የሚገኝ)">
+          <span class="ic">🎬</span><span class="lbl">ቪዲዮ</span>
+        </button>
+        <button class="ribbon-btn" id="insAudio" data-tip="ድምጽ ጨምር (ለሪከርዲንግ)">
+          <span class="ic">🔊</span><span class="lbl">ድምጽ</span>
+        </button>
+        <button class="ribbon-btn" id="insLink" data-tip="ሊንክ">
+          <span class="ic">🔗</span><span class="lbl">ሊንክ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ሚዲያ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="insEquation" data-tip="ሒሳብ">
+          <span class="ic">∑</span><span class="lbl">ሒሳብ</span>
+        </button>
+        <button class="ribbon-btn" id="insSymbol" data-tip="ምልክት">
+          <span class="ic">★</span><span class="lbl">ምልክት</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ምልክቶች</span>
+    </div>
+  </div>
+
+  <!-- DESIGN TAB -->
+  <div class="ribbon-content" data-content="design">
+    <div class="ribbon-group" style="flex: 1; min-width: 300px;">
+      <div class="ribbon-buttons" style="width: 100%;">
+        <div class="design-gallery" id="designGallery" style="flex: 1;"></div>
+      </div>
+      <span class="ribbon-group-label">ቴማ (Themes)</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <input type="color" class="ribbon-color" id="dsnBg" value="#ffffff" title="የጀርባ ቀለም" />
+        <input type="color" class="ribbon-color" id="dsnTitle" value="#1d4ed8" title="የርዕስ ቀለም" />
+        <input type="color" class="ribbon-color" id="dsnAccent" value="#f59e0b" title="አክሰንት ቀለም" />
+      </div>
+      <span class="ribbon-group-label">ቀለሞች</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <select class="ribbon-select" id="dsnLayout">
+          <option value="LAYOUT_WIDE">16:9 Wide</option>
+          <option value="LAYOUT_16x9">16:9 Standard</option>
+          <option value="LAYOUT_4x3">4:3 Classic</option>
+        </select>
+      </div>
+      <span class="ribbon-group-label">የስላይድ መጠን</span>
+    </div>
+  </div>
+
+  <!-- TRANSITIONS TAB -->
+  <div class="ribbon-content" data-content="transitions">
+    <div class="ribbon-group" style="flex:1; min-width: 400px;">
+      <div class="ribbon-buttons" style="width: 100%;">
+        <div class="transition-gallery" id="transGallery" style="flex:1;"></div>
+      </div>
+      <span class="ribbon-group-label">የስላይድ ትራንዚሽን</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <select class="ribbon-select" id="transDuration">
+          <option value="0.3">ፈጣን (0.3s)</option>
+          <option value="0.7" selected>መካከለኛ (0.7s)</option>
+          <option value="1.2">አዘገም (1.2s)</option>
+          <option value="2">በጣም አዘገም (2s)</option>
+        </select>
+      </div>
+      <span class="ribbon-group-label">ጊዜ</span>
+    </div>
+  </div>
+
+  <!-- ANIMATIONS TAB -->
+  <div class="ribbon-content" data-content="animations">
+    <div class="ribbon-group" style="flex:1; min-width: 400px;">
+      <div class="ribbon-buttons" style="width: 100%;">
+        <div class="animation-gallery" id="animGallery" style="flex:1;"></div>
+      </div>
+      <span class="ribbon-group-label">የጽሑፍ አኒሜሽን</span>
+    </div>
+  </div>
+
+  <!-- SLIDE SHOW TAB -->
+  <div class="ribbon-content" data-content="slideshow">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn primary-action" id="ssStart" data-tip="ከመጀመሪያ ጀምር (F5)">
+          <span class="ic">▶</span><span class="lbl">ከመጀመሪያ</span>
+        </button>
+        <button class="ribbon-btn" id="ssCurrent" data-tip="ከአሁኑ ጀምር (Shift+F5)">
+          <span class="ic">⏯</span><span class="lbl">ከአሁኑ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ጀምር</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="ssAuto" data-tip="በራስ-ሰር አሳይ">
+          <span class="ic">🔄</span><span class="lbl">አውቶ</span>
+        </button>
+        <select class="ribbon-select" id="ssAutoSec">
+          <option value="3">3 ሰከንዶች</option>
+          <option value="5" selected>5 ሰከንዶች</option>
+          <option value="8">8 ሰከንዶች</option>
+          <option value="15">15 ሰከንዶች</option>
+          <option value="30">30 ሰከንዶች</option>
+        </select>
+      </div>
+      <span class="ribbon-group-label">አውቶ-ፕሌይ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="ssFullscreen" data-tip="ሙሉ ስክሪን">
+          <span class="ic">⛶</span><span class="lbl">ሙሉ</span>
+        </button>
+        <button class="ribbon-btn" id="ssPresenter" data-tip="ፕሬዘንተር ቪው">
+          <span class="ic">👨‍🏫</span><span class="lbl">ፕሬዘንተር</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ቪውዎች</span>
+    </div>
+  </div>
+
+  <!-- RECORD TAB -->
+  <div class="ribbon-content" data-content="record">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn primary-action" id="recStart" data-tip="ድምጽ መቅረጽ ጀምር">
+          <span class="ic">🎙</span><span class="lbl">ቀርጽ</span>
+        </button>
+        <button class="ribbon-btn" id="recStop" data-tip="አቁም" disabled>
+          <span class="ic">⏹</span><span class="lbl">አቁም</span>
+        </button>
+        <button class="ribbon-btn" id="recPause" data-tip="ዘግይ" disabled>
+          <span class="ic">⏸</span><span class="lbl">ዘግይ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ድምጽ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="recScreen" data-tip="ስክሪን ቀርጽ">
+          <span class="ic">🖥️</span><span class="lbl">ስክሪን</span>
+        </button>
+        <button class="ribbon-btn" id="recCam" data-tip="ካሜራ">
+          <span class="ic">📹</span><span class="lbl">ካሜራ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ቪዲዮ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="recDownload" data-tip="ሁሉንም ቅጅ አውርድ">
+          <span class="ic">💾</span><span class="lbl">አውርድ</span>
+        </button>
+        <button class="ribbon-btn" id="recClear" data-tip="ሁሉንም አጥፋ">
+          <span class="ic">🗑</span><span class="lbl">አጥፋ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ቅጅዎች</span>
+    </div>
+  </div>
+
+  <!-- REVIEW TAB -->
+  <div class="ribbon-content" data-content="review">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="revSpell" data-tip="ፊደል ይመርምር">
+          <span class="ic">ABC✓</span><span class="lbl">ፊደል</span>
+        </button>
+        <button class="ribbon-btn" id="revWordCount" data-tip="የቃላት ብዛት">
+          <span class="ic">🔢</span><span class="lbl">ቃላት</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ምርመራ</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="revNewComment" data-tip="አስተያየት ጨምር">
+          <span class="ic">💬</span><span class="lbl">አዲስ</span>
+        </button>
+        <button class="ribbon-btn" id="revShowComments" data-tip="አስተያየቶችን አሳይ">
+          <span class="ic">📝</span><span class="lbl">አሳይ</span>
+        </button>
+        <button class="ribbon-btn" id="revClearComments" data-tip="ሁሉንም አስተያየት አጥፋ">
+          <span class="ic">🧹</span><span class="lbl">አጽዳ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">አስተያየት</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="revTranslate" data-tip="ተርጉም">
+          <span class="ic">🌐</span><span class="lbl">ተርጉም</span>
+        </button>
+        <select class="ribbon-select" id="revTransLang">
+          <option value="none">ምንም</option>
+          <option value="am">ወደ አማርኛ</option>
+          <option value="en">ወደ English</option>
+          <option value="bilingual">ሁለቱም</option>
+        </select>
+      </div>
+      <span class="ribbon-group-label">ቋንቋ</span>
+    </div>
+  </div>
+
+  <!-- VIEW TAB -->
+  <div class="ribbon-content" data-content="view">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="viewNormal" data-tip="መደበኛ ቪው">
+          <span class="ic">📑</span><span class="lbl">መደበኛ</span>
+        </button>
+        <button class="ribbon-btn" id="viewOutline" data-tip="ጭብጥ">
+          <span class="ic">📋</span><span class="lbl">ጭብጥ</span>
+        </button>
+        <button class="ribbon-btn" id="viewSorter" data-tip="ስላይዶችን አደራጅ">
+          <span class="ic">🔢</span><span class="lbl">አደራጅ</span>
+        </button>
+        <button class="ribbon-btn" id="viewReader" data-tip="የንባብ ቪው">
+          <span class="ic">📖</span><span class="lbl">ንባብ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">የቪው ዓይነቶች</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="viewDark" data-tip="ጥቁር/ብርሃን ቴማ">
+          <span class="ic">🌓</span><span class="lbl">ቴማ</span>
+        </button>
+        <button class="ribbon-btn" id="viewZoomIn" data-tip="ጨምር">
+          <span class="ic">🔍+</span><span class="lbl">ጨምር</span>
+        </button>
+        <button class="ribbon-btn" id="viewZoomOut" data-tip="ቀንስ">
+          <span class="ic">🔍−</span><span class="lbl">ቀንስ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ዙም</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="viewRail" data-tip="የስላይዶች ጥቅል አሳይ">
+          <span class="ic">📊</span><span class="lbl">ጥቅል</span>
+        </button>
+        <button class="ribbon-btn" id="viewSettings" data-tip="ሁሉም ቅንብሮች">
+          <span class="ic">⚙️</span><span class="lbl">ቅንብሮች</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ፓነሎች</span>
+    </div>
+  </div>
+
+  <!-- FILE TAB -->
+  <div class="ribbon-content" data-content="file">
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn primary-action" id="fileNew" data-tip="አዲስ">
+          <span class="ic">📄</span><span class="lbl">አዲስ</span>
+        </button>
+        <button class="ribbon-btn" id="fileOpen" data-tip="ክፈት">
+          <span class="ic">📂</span><span class="lbl">ክፈት</span>
+        </button>
+        <button class="ribbon-btn" id="fileSave" data-tip="አስቀምጥ (.pptx)">
+          <span class="ic">💾</span><span class="lbl">አስቀምጥ</span>
+        </button>
+        <button class="ribbon-btn" id="fileExportPDF" data-tip="ወደ PDF ላክ">
+          <span class="ic">📕</span><span class="lbl">PDF</span>
+        </button>
+        <button class="ribbon-btn" id="fileExportJSON" data-tip="ቅንብር ይውሰዱ (JSON)">
+          <span class="ic">🗄</span><span class="lbl">JSON</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ፋይል ስራዎች</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="filePrint" data-tip="አትም">
+          <span class="ic">🖨</span><span class="lbl">አትም</span>
+        </button>
+        <button class="ribbon-btn" id="fileShare" data-tip="አጋራ">
+          <span class="ic">📤</span><span class="lbl">አጋራ</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">ማጋራት</span>
+    </div>
+
+    <div class="ribbon-group">
+      <div class="ribbon-buttons">
+        <button class="ribbon-btn" id="fileInstall" data-tip="እንደ ሞባይል/ኮምፒዩተር አፕ ጫን">
+          <span class="ic">📲</span><span class="lbl">ጫን</span>
+        </button>
+      </div>
+      <span class="ribbon-group-label">አፕሊኬሽን</span>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- ============ STEP 1: UPLOAD ============ -->
+  <section class="card upload-card" id="step1">
+    <div class="card-head">
+      <span class="step-no">1</span>
+      <h2>ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ</h2>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dz-inner">
+        <div class="dz-icon">📂</div>
+        <h3>ፋይል እዚህ ይጣሉ ወይም ይምረጡ</h3>
+        <p>የሚደገፉ: <b>.docx .xlsx .xls .pdf .txt .png .jpg .jpeg .webp</b></p>
+        <label class="primary-btn">
+          ፋይል ምረጥ
+          <input type="file" id="fileInput" hidden
+            accept=".docx,.xlsx,.xls,.pdf,.txt,.png,.jpg,.jpeg,.webp" multiple />
+        </label>
+      </div>
+    </div>
+
+    <div class="or-divider"><span>ወይም</span></div>
+
+    <div class="text-input-block">
+      <label for="rawText">ቀጥታ ጽሑፍ ይለጥፉ (አማርኛ/እንግሊዝኛ)</label>
+      <textarea id="rawText" rows="6" placeholder="እዚህ ጽሑፍ ይለጥፉ... ለምሳሌ:
+ርዕስ: የኢትዮጵያ ታሪክ
+• አክሱም መንግሥት
+• የላሊበላ አብያተ ክርስቲያናት
+• የጎንደር ቤተ መንግሥት"></textarea>
+      <button class="secondary-btn" id="useTextBtn">ይህን ጽሑፍ ተጠቀም</button>
+    </div>
+
+    <div id="fileList" class="file-list"></div>
+  </section>
+
+  <!-- ============ STEP 2: SETTINGS ============ -->
+  <section class="card settings-card" id="step2">
+    <div class="card-head">
+      <span class="step-no">2</span>
+      <h2>የፓወር ፖይንት ቅንብሮች</h2>
+    </div>
+
+    <h3 class="settings-group-title">📝 መሰረታዊ መረጃ</h3>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>የአቀራረብ ርዕስ (Title)</label>
+        <input type="text" id="pptTitle" placeholder="የኔ ፓወር ፖይንት" />
+      </div>
+      <div class="setting">
+        <label>ደራሲ (Author)</label>
+        <input type="text" id="pptAuthor" placeholder="ስም" />
+      </div>
+      <div class="setting">
+        <label>የስላይድ መጠን</label>
+        <select id="pptLayout">
+          <option value="LAYOUT_WIDE">16:9 Widescreen</option>
+          <option value="LAYOUT_16x9">16:9 Standard</option>
+          <option value="LAYOUT_4x3">4:3 Classic</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="settings-group-title">🎨 መልክ (Design)</h3>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>ቴማ (Theme)</label>
+        <select id="pptTheme">
+          <option value="modern">Modern Blue</option>
+          <option value="dark">Dark Pro</option>
+          <option value="ethiopia">Ethiopia (አረንጓዴ-ቢጫ-ቀይ)</option>
+          <option value="minimal">Minimal White</option>
+          <option value="corporate">Corporate</option>
+          <option value="gradient">Gradient Sunset</option>
+          <option value="custom">⚙️ ብጁ (Custom)</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የጀርባ ቀለም (Background)</label>
+        <select id="bgPreset">
+          <option value="">— ከቴማው ተጠቀም —</option>
+          <option value="FFFFFF">⬜ ነጭ (White)</option>
+          <option value="000000">⬛ ጥቁር (Black)</option>
+          <option value="F8FAFC">Light Gray</option>
+          <option value="1E293B">Slate Dark</option>
+          <option value="FEF3C7">Cream Yellow</option>
+          <option value="DBEAFE">Sky Blue</option>
+          <option value="DCFCE7">Mint Green</option>
+          <option value="FCE7F3">Soft Pink</option>
+          <option value="FED7AA">Peach</option>
+          <option value="E0E7FF">Lavender</option>
+          <option value="F5F5DC">Beige</option>
+          <option value="custom">🎨 ብጁ ቀለም...</option>
+        </select>
+        <input type="color" id="bgCustomColor" value="#ffffff" style="display:none; margin-top:6px; width:100%; height:38px; border-radius:8px; border:1px solid var(--border);" />
+      </div>
+
+      <div class="setting">
+        <label>የጽሑፍ ቀለም (Text Color)</label>
+        <input type="color" id="textColor" value="#1a2238" />
+      </div>
+
+      <div class="setting">
+        <label>የርዕስ ቀለም (Title Color)</label>
+        <input type="color" id="titleColor" value="#1d4ed8" />
+      </div>
+
+      <div class="setting">
+        <label>አክሰንት ቀለም (Accent)</label>
+        <input type="color" id="accentColor" value="#f59e0b" />
+      </div>
+
+      <div class="setting">
+        <label>ፎንት (Amharic Supported)</label>
+        <select id="pptFont">
+          <option value="Noto Sans Ethiopic">Noto Sans Ethiopic</option>
+          <option value="Abyssinica SIL">Abyssinica SIL</option>
+          <option value="Nyala">Nyala</option>
+          <option value="Power Geez Unicode1">Power Geez Unicode1</option>
+          <option value="Ethiopia Jiret">Ethiopia Jiret</option>
+          <option value="Visual Geez Unicode">Visual Geez Unicode</option>
+          <option value="Calibri">Calibri</option>
+          <option value="Arial">Arial</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="settings-group-title">🔤 የፎንት መጠን (Font Sizes)</h3>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>የስላይድ ርዕስ መጠን (Title)</label>
+        <select id="fontSizeTitle">
+          <option value="20">20 (ትንሽ)</option>
+          <option value="24">24</option>
+          <option value="28" selected>28 (መካከለኛ)</option>
+          <option value="32">32</option>
+          <option value="36">36</option>
+          <option value="40">40 (ትልቅ)</option>
+          <option value="44">44</option>
+          <option value="48">48 (በጣም ትልቅ)</option>
+          <option value="54">54</option>
+          <option value="60">60</option>
+          <option value="72">72 (Huge)</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የንዑስ ርዕስ መጠን (H2/H3)</label>
+        <select id="fontSizeSubtitle">
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18">18</option>
+          <option value="20">20</option>
+          <option value="22" selected>22</option>
+          <option value="24">24</option>
+          <option value="26">26</option>
+          <option value="28">28</option>
+          <option value="32">32</option>
+          <option value="36">36</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የቡሌት/ጽሑፍ መጠን (Body)</label>
+        <select id="fontSizeBody">
+          <option value="10">10 (በጣም ትንሽ)</option>
+          <option value="11">11</option>
+          <option value="12">12 (ትንሽ)</option>
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18" selected>18 (መካከለኛ)</option>
+          <option value="20">20</option>
+          <option value="22">22</option>
+          <option value="24">24 (ትልቅ)</option>
+          <option value="28">28</option>
+          <option value="32">32 (በጣም ትልቅ)</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የሰንጠረዥ ጽሑፍ መጠን</label>
+        <select id="fontSizeTable">
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11" selected>11</option>
+          <option value="12">12</option>
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18">18</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የርዕስ ስታይል</label>
+        <select id="titleStyle">
+          <option value="bold" selected>Bold</option>
+          <option value="bold-italic">Bold + Italic</option>
+          <option value="bold-underline">Bold + Underline</option>
+          <option value="regular">Regular</option>
+          <option value="italic">Italic</option>
+          <option value="uppercase">UPPERCASE Bold</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የንዑስ ርዕስ ስታይል</label>
+        <select id="subtitleStyle">
+          <option value="bold-italic" selected>Bold Italic</option>
+          <option value="bold">Bold</option>
+          <option value="italic">Italic</option>
+          <option value="underline">Underline</option>
+          <option value="regular">Regular</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="settings-group-title">📋 ይዘት (Content)</h3>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>በአንድ ስላይድ የመስመር ብዛት</label>
+        <select id="linesPerSlide">
+          <option value="4">4 መስመር</option>
+          <option value="5">5 መስመር</option>
+          <option value="6" selected>6 መስመር</option>
+          <option value="7">7 መስመር</option>
+          <option value="8">8 መስመር</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>የቡሌት ዓይነት</label>
+        <select id="bulletStyle">
+          <option value="dot">● ክብ ቡሌት</option>
+          <option value="check">✔ ቼክ</option>
+          <option value="arrow">➤ ቀስት</option>
+          <option value="star">★ ኮከብ</option>
+          <option value="number">1. ቁጥር</option>
+          <option value="diamond">◆ አልማዝ</option>
+          <option value="square">▪ ካሬ</option>
+          <option value="ethiopia">፩ ኢትዮጵያዊ</option>
+          <option value="mixed">🎨 ድብልቅ (Auto)</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>አኒሜሽን (Transition)</label>
+        <select id="animation">
+          <option value="fade">Fade</option>
+          <option value="push">Push</option>
+          <option value="wipe">Wipe</option>
+          <option value="split">Split</option>
+          <option value="zoom">Zoom</option>
+          <option value="none">ምንም</option>
+        </select>
+      </div>
+
+      <div class="setting">
+        <label>ትራንስሌሽን (Translate)</label>
+        <select id="translateTo">
+          <option value="none">አትተርጉም</option>
+          <option value="am">ወደ አማርኛ ተርጉም</option>
+          <option value="en">ወደ English ተርጉም</option>
+          <option value="bilingual">ሁለቱም (Bilingual)</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="settings-group-title">📊 ሰንጠረዥ ቅንብሮች (Table Settings)</h3>
+    <div class="settings-grid">
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="includeTables" checked />
+          <span>ሰንጠረዦችን (Tables) ጨምር</span>
+        </label>
+      </div>
+      <div class="setting">
+        <label>ከፍተኛ ሮዎች በአንድ ሰንጠረዥ (Max Rows: 1–20)</label>
+        <input type="number" id="maxTableRows" min="1" max="20" value="15" />
+      </div>
+      <div class="setting">
+        <label>ከፍተኛ ኮሎምኖች (Max Cols: 1–22)</label>
+        <input type="number" id="maxTableCols" min="1" max="22" value="10" />
+      </div>
+      <div class="setting">
+        <label>ትልልቅ ሰንጠረዦች</label>
+        <select id="bigTableMode">
+          <option value="split" selected>በብዙ ስላይዶች ይከፋፈል</option>
+          <option value="shrink">ፎንት አንስቶ በአንድ ስላይድ</option>
+          <option value="truncate">ቁረጥ (Truncate)</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 class="settings-group-title">✅ ጨማሪዎች (Extras)</h3>
+    <div class="settings-grid">
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="includeTOC" checked />
+          <span>የይዘት ሰንጠረዥ (TOC) ጨምር</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="includeImages" checked />
+          <span>ምስሎችን ጨምር</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="includeCharts" checked />
+          <span>ቻርቶችን (Charts) ጨምር</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="slideNumbers" checked />
+          <span>የስላይድ ቁጥር አሳይ</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="footerToggle" checked />
+          <span>Footer አካትት</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="continueLabel" checked />
+          <span>"...የቀጠለ" በቀጣይ ስላይዶች አሳይ</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="titleSlide" checked />
+          <span>የመጀመሪያ ርዕስ ስላይድ</span>
+        </label>
+      </div>
+      <div class="setting toggle-row">
+        <label class="switch-label">
+          <input type="checkbox" id="thankYouSlide" checked />
+          <span>"አመሰግናለሁ" የመጨረሻ ስላይድ</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3: CONVERT ============ -->
+  <section class="card convert-card" id="step3">
+    <div class="card-head">
+      <span class="step-no">3</span>
+      <h2>ቀይር እና አውርድ</h2>
+    </div>
+
+    <div class="convert-actions">
+      <button id="convertBtn" class="mega-btn">
+        ⚡ አሁን ወደ PowerPoint ቀይር
+      </button>
+      <button id="previewBtn" class="secondary-btn">👁 ቅድመ እይታ</button>
+      <button id="resetBtn" class="ghost-btn">🗑 አጥፋ</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap" hidden>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">በመጀመር ላይ...</div>
+    </div>
+
+    <div id="resultBox" class="result-box" hidden></div>
+  </section>
+
+  <!-- ============ PREVIEW ============ -->
+  <section class="card preview-card" id="previewCard" hidden>
+    <div class="card-head">
+      <span class="step-no">👁</span>
+      <h2>ቅድመ እይታ (Slides Preview)</h2>
+    </div>
+    <div id="slidesPreview" class="slides-preview"></div>
+  </section>
+
+  <!-- ============ RECORDER PANEL ============ -->
+  <section class="card" id="recorderCard" style="display:none;">
+    <div class="card-head">
+      <span class="step-no">🎙</span>
+      <h2>ድምጽ መቅረጫ (Voice Recorder)</h2>
+    </div>
+    <div class="recorder-panel show">
+      <div class="recorder-status">
+        <span class="rec-dot" id="recDot" style="display:none;"></span>
+        <span class="recorder-time" id="recTime">00:00</span>
+        <span id="recState" style="color: var(--text-soft); font-size: 13px;">ዝግጁ</span>
+      </div>
+      <div class="recorder-actions">
+        <button class="primary-btn" id="recBtnStart">🎙 መቅረጽ ጀምር</button>
+        <button class="secondary-btn" id="recBtnPause" disabled>⏸ ዘግይ</button>
+        <button class="secondary-btn" id="recBtnStop" disabled>⏹ አቁም</button>
+      </div>
+      <div class="recordings-list" id="recordingsList"></div>
+    </div>
+  </section>
+
+  <!-- ============ COMMENTS PANEL ============ -->
+  <section class="card" id="commentsCard" style="display:none;">
+    <div class="card-head">
+      <span class="step-no">💬</span>
+      <h2>አስተያየቶች (Comments / Review)</h2>
+    </div>
+    <div class="comments-panel show">
+      <div style="display:flex; gap:10px; margin-bottom:14px;">
+        <input type="text" id="cmtAuthor" placeholder="ስምዎ" style="flex:0 0 140px; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text);" />
+        <input type="text" id="cmtText" placeholder="አስተያየት ይጻፉ..." style="flex:1; padding:10px 12px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2); color:var(--text);" />
+        <button class="primary-btn" id="cmtAdd">ጨምር</button>
+      </div>
+      <div id="commentsList"></div>
+    </div>
+  </section>
+
+  <!-- ============ STAGE / WORKSPACE VIEW ============ -->
+  <section class="card" id="stageCard" style="display:none;">
+    <div class="card-head">
+      <span class="step-no">📊</span>
+      <h2>የስላይዶች ጥቅል (Slides Workspace)</h2>
+    </div>
+    <div class="slides-workspace">
+      <div class="slides-rail" id="slidesRail">
+        <p style="color: var(--text-soft); font-size: 12px; text-align: center; padding: 20px 8px;">
+          ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ፣ ከዚያ ቅድመ እይታ ይጫኑ።
+        </p>
+      </div>
+      <div class="slide-stage">
+        <div class="stage-toolbar">
+          <button id="stagePrev">◀ ቀዳሚ</button>
+          <button id="stageNext">ቀጣይ ▶</button>
+          <button id="stageDelete">🗑 አጥፋ</button>
+          <button id="stageDuplicate">⎘ አባዛ</button>
+          <span style="flex:1;"></span>
+          <span id="stageInfo" style="font-size:12px; color:var(--text-soft);">ስላይድ — / —</span>
+        </div>
+        <div class="stage-canvas" id="stageCanvas">
+          <h2>እንኳን ደህና መጡ!</h2>
+          <div class="sc-body">
+            <ul>
+              <li>ይህ ስላይድ ዎርክስፔስ ነው።</li>
+              <li>ፋይል ይምረጡና "ቅድመ እይታ" ይጫኑ።</li>
+              <li>ስላይዶችዎን እዚህ ያስተካክሉ።</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSERT TABLE DIALOG ============ -->
+  <section class="card" id="insertTableCard" style="display:none;">
+    <div class="card-head">
+      <span class="step-no">📊</span>
+      <h2>ብጁ ሰንጠረዥ ጨምር (Custom Table Insert)</h2>
+    </div>
+    <div class="settings-grid">
+      <div class="setting">
+        <label>የሮዎች ብዛት (Rows 1-20)</label>
+        <input type="number" id="customTblRows" min="1" max="20" value="5" />
+      </div>
+      <div class="setting">
+        <label>የኮሎምኖች ብዛት (Cols 1-22)</label>
+        <input type="number" id="customTblCols" min="1" max="22" value="4" />
+      </div>
+      <div class="setting">
+        <label>የሰንጠረዥ ርዕስ</label>
+        <input type="text" id="customTblTitle" placeholder="ለምሳሌ: የስታፍ ዝርዝር" />
+      </div>
+    </div>
+    <div style="margin-top:14px; overflow-x:auto;">
+      <table id="customTblPreview" style="width:100%; border-collapse: collapse; font-size: 13px;"></table>
+    </div>
+    <div style="margin-top:14px; display:flex; gap:10px;">
+      <button class="primary-btn" id="customTblAdd">✓ ወደ ስላይድ ጨምር</button>
+      <button class="secondary-btn" id="customTblCancel">ሰርዝ</button>
+    </div>
+  </section>
+
+  <!-- ============ HELP ============ -->
+  <section class="card help-card" id="help">
+    <div class="card-head">
+      <span class="step-no">?</span>
+      <h2>እንዴት መጠቀም ይቻላል</h2>
+    </div>
+    <ol class="help-list">
+      <li>ፋይል ይምረጡ — Word (.docx), Excel (.xlsx), PDF, ምስል ወይም ጽሑፍ።</li>
+      <li>የፓወር ፖይንት ቅንብሮችን ያስተካክሉ — ቴማ፣ ፎንት መጠን፣ ቡሌት፣ የጀርባ ቀለም።</li>
+      <li>«አሁን ቀይር» የሚለውን ይጫኑ — በሰከንዶች ውስጥ .pptx ፋይል ያገኛሉ።</li>
+      <li>ሙሉ በሙሉ ኦፍላይን ይሰራል — ምንም መረጃ ወደ ሰርቨር አይላክም።</li>
+      <li>ረዣዥም ይዘት በብዙ ስላይዶች ይከፋፈልና በቀጣይ ስላይድ "...የቀጠለ" ይባላል።</li>
+      <li>ሰንጠረዦች በ Max Rows/Cols ቅንብር መሰረት በብዙ ስላይዶች ይከፋፈላሉ።</li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Smart PPT Converter • በAmharic ሙሉ ድጋፍ • Made with ⚡ HTML + CSS + JS</p>
+</footer>
+
+<!-- Toast notifications -->
+<div id="toast" class="toast"></div>
+
+<!-- ============ SLIDESHOW OVERLAY ============ -->
+<div id="slideshowOverlay" class="slideshow-overlay">
+  <div class="slideshow-progress"><div class="slideshow-progress-bar" id="ssProgressBar"></div></div>
+  <div class="slideshow-stage" id="slideshowStage"></div>
+  <div class="slideshow-controls">
+    <button id="ssPrev" data-tip="ቀዳሚ (←)">⏮</button>
+    <button id="ssPlayPause" data-tip="ፕሌይ/ፓውዝ (Space)">⏸</button>
+    <button id="ssNext" data-tip="ቀጣይ (→)">⏭</button>
+    <span class="ss-counter" id="ssCounter">1 / 1</span>
+    <button id="ssExit" class="ss-exit" data-tip="ውጣ (Esc)">✕ ውጣ</button>
+  </div>
+</div>
+
+<!-- ============ INSTALL BANNER ============ -->
+<div id="installBanner" class="install-banner">
+  <button class="ib-close" id="ibClose">×</button>
+  <h4>📲 እንደ ሞባይል/ኮምፒዩተር አፕ ጫን</h4>
+  <p>Smart PPT Converter በስልክዎ ወይም በኮምፒዩተርዎ ላይ ጫኑት — ሁልጊዜ ኦፍላይን ይሰራል፣ ብራውዘር ሳያስፈልግ።</p>
+  <div class="ib-actions">
+    <button class="ib-install" id="ibInstall">✓ አሁን ጫን</button>
+    <button class="ib-later" id="ibLater">በኋላ</button>
+  </div>
+</div>
+
+<!-- ============ FAB (Floating Action Button) ============ -->
+<button class="fab" id="fab" data-tip="ፈጣን ቀይር">⚡</button>
+<script>
+/* ===== parsers.js ===== */
+/* =========================================================
+   Smart PPT Converter — File Parsers
+   Supports: DOCX, XLSX/XLS, PDF, Images (OCR), TXT
+   All parsing happens locally (offline) in the browser.
+   ========================================================= */
+
+// Note: PDF.js worker is configured in index.html loader
+
+const Parsers = (() => {
+
+  /* ---------- File reading helpers ---------- */
+  const readAsArrayBuffer = (file) => new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej;
+    r.readAsArrayBuffer(file);
+  });
+  const readAsDataURL = (file) => new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+  const readAsText = (file) => new Promise((res, rej) => {
+    const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej;
+    r.readAsText(file, 'UTF-8');
+  });
+
+  /* ---------- DOCX Parser (Mammoth) ---------- */
+  async function parseDocx(file) {
+    const arrayBuffer = await readAsArrayBuffer(file);
+
+    // Mammoth options - convert images to data URLs
+    const options = {
+      convertImage: mammoth.images.imgElement(image => {
+        return image.read('base64').then(buf => ({
+          src: `data:${image.contentType};base64,${buf}`
+        }));
+      }),
+      styleMap: [
+        "p[style-name='Title'] => h1.title:fresh",
+        "p[style-name='Heading 1'] => h1:fresh",
+        "p[style-name='Heading 2'] => h2:fresh",
+        "p[style-name='Heading 3'] => h3:fresh",
+        "p[style-name='Heading 4'] => h4:fresh",
+        "p[style-name='Subtitle'] => h2.subtitle:fresh",
+        "p[style-name='Quote'] => blockquote:fresh",
+        "b => strong",
+        "i => em",
+        "u => u"
+      ]
+    };
+
+    const htmlResult = await mammoth.convertToHtml({ arrayBuffer }, options);
+    const textResult = await mammoth.extractRawText({ arrayBuffer });
+
+    const parsed = parseHtmlDocument(htmlResult.value);
+    return {
+      type: 'docx',
+      name: file.name,
+      rawText: textResult.value,
+      blocks: parsed.blocks,
+      images: parsed.images,
+      tables: parsed.tables
+    };
+  }
+
+  /* ---------- Parse HTML document into blocks (PRESERVES ORDER) ---------- */
+  function parseHtmlDocument(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+
+    const blocks = [];
+    const images = [];
+    const tables = [];
+
+    // Walk top-level children IN ORDER to preserve document flow
+    const processNode = (node) => {
+      if (node.nodeType !== 1) return;
+      const tag = node.tagName.toLowerCase();
+
+      if (/^h[1-6]$/.test(tag)) {
+        const lvl = parseInt(tag.substring(1));
+        const text = node.textContent.trim();
+        if (text) blocks.push({
+          kind: 'heading',
+          level: lvl,
+          text,
+          isTitle: node.classList.contains('title'),
+          isSubtitle: node.classList.contains('subtitle')
+        });
+      } else if (tag === 'p') {
+        const text = node.textContent.trim();
+        const imgs = Array.from(node.querySelectorAll('img'));
+
+        if (text) {
+          // Detect inline emphasis/bold
+          const hasBold = node.querySelector('strong, b');
+          const hasItalic = node.querySelector('em, i');
+          // Short bold paragraph alone => treat as a subheading
+          if (hasBold && text.length < 80 && node.children.length === 1) {
+            blocks.push({ kind: 'heading', level: 3, text });
+          } else {
+            blocks.push({ kind: 'paragraph', text, bold: !!hasBold, italic: !!hasItalic });
+          }
+        }
+        imgs.forEach(img => {
+          images.push(img.src);
+          blocks.push({ kind: 'image', src: img.src });
+        });
+      } else if (tag === 'ul' || tag === 'ol') {
+        const items = Array.from(node.querySelectorAll(':scope > li'))
+          .map(li => li.textContent.trim()).filter(Boolean);
+        if (items.length) blocks.push({ kind: 'list', ordered: tag === 'ol', items });
+      } else if (tag === 'table') {
+        const rows = [];
+        node.querySelectorAll('tr').forEach(tr => {
+          const cells = Array.from(tr.querySelectorAll('th,td'))
+            .map(c => c.textContent.trim().replace(/\s+/g, ' '));
+          if (cells.length) rows.push(cells);
+        });
+        if (rows.length) {
+          // Normalize column count
+          const maxCols = Math.max(...rows.map(r => r.length));
+          rows.forEach(r => {
+            while (r.length < maxCols) r.push('');
+          });
+          tables.push(rows);
+          blocks.push({ kind: 'table', rows });
+        }
+      } else if (tag === 'img') {
+        images.push(node.src);
+        blocks.push({ kind: 'image', src: node.src });
+      } else if (tag === 'blockquote') {
+        const text = node.textContent.trim();
+        if (text) blocks.push({ kind: 'quote', text });
+      } else if (tag === 'div' || tag === 'section' || tag === 'article') {
+        // recurse
+        Array.from(node.childNodes).forEach(processNode);
+      }
+    };
+
+    Array.from(div.childNodes).forEach(processNode);
+
+    return { blocks, images, tables };
+  }
+
+  /* ---------- XLSX/XLS Parser ---------- */
+  async function parseExcel(file) {
+    const arrayBuffer = await readAsArrayBuffer(file);
+    const wb = XLSX.read(arrayBuffer, { type: 'array' });
+    const sheets = [];
+
+    wb.SheetNames.forEach(name => {
+      const ws = wb.Sheets[name];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      const cleaned = rows.filter(r => r.some(c => String(c).trim() !== ''));
+      if (cleaned.length) sheets.push({ name, rows: cleaned });
+    });
+
+    const blocks = [];
+    sheets.forEach(sheet => {
+      blocks.push({ kind: 'heading', level: 1, text: sheet.name });
+      if (sheet.rows.length) {
+        blocks.push({ kind: 'table', rows: sheet.rows });
+        const chart = detectChartFromSheet(sheet.rows);
+        if (chart) blocks.push({ kind: 'chart', ...chart });
+      }
+    });
+
+    return {
+      type: 'excel',
+      name: file.name,
+      sheets,
+      blocks,
+      images: [],
+      tables: sheets.map(s => s.rows)
+    };
+  }
+
+  function detectChartFromSheet(rows) {
+    if (rows.length < 2) return null;
+    const header = rows[0].map(String);
+    const dataRows = rows.slice(1, Math.min(rows.length, 12));
+    if (header.length < 2) return null;
+
+    const numericCols = [];
+    for (let c = 1; c < header.length; c++) {
+      const vals = dataRows.map(r => parseFloat(r[c]));
+      const numCount = vals.filter(v => !isNaN(v)).length;
+      if (numCount >= Math.max(2, Math.floor(dataRows.length * 0.6))) {
+        numericCols.push(c);
+      }
+    }
+    if (!numericCols.length) return null;
+
+    const labels = dataRows.map(r => String(r[0] || ''));
+    const series = numericCols.map(c => ({
+      name: String(header[c] || `Series ${c}`),
+      labels,
+      values: dataRows.map(r => {
+        const v = parseFloat(r[c]);
+        return isNaN(v) ? 0 : v;
+      })
+    }));
+
+    return { title: String(header[0] || 'Chart'), chartType: 'bar', series };
+  }
+
+  /* ---------- PDF Parser ---------- */
+  async function parsePdf(file, onProgress) {
+    const arrayBuffer = await readAsArrayBuffer(file);
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const blocks = [];
+    const images = [];
+
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const textContent = await page.getTextContent();
+      const items = textContent.items;
+
+      // Group items into lines by Y coordinate
+      const lines = groupPdfLines(items);
+
+      if (pdf.numPages > 1) {
+        blocks.push({ kind: 'heading', level: 2, text: `ገጽ ${p} / Page ${p}` });
+      }
+
+      // Detect headings (large font items) vs body
+      lines.forEach(line => {
+        const text = line.text.trim();
+        if (!text) return;
+        if (line.maxHeight > 14 && text.length < 100) {
+          blocks.push({ kind: 'heading', level: 3, text });
+        } else {
+          // Split into sentences and add as a list
+          const sentences = splitSentences(text);
+          if (sentences.length > 1) {
+            blocks.push({ kind: 'list', ordered: false, items: sentences });
+          } else {
+            blocks.push({ kind: 'paragraph', text });
+          }
+        }
+      });
+
+      // Render page as image (first 2 pages only)
+      if (p <= 2) {
+        try {
+          const viewport = page.getViewport({ scale: 1.2 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          const dataUrl = canvas.toDataURL('image/png');
+          images.push(dataUrl);
+        } catch (e) { /* ignore */ }
+      }
+
+      if (onProgress) onProgress(p / pdf.numPages);
+    }
+
+    return { type: 'pdf', name: file.name, blocks, images, tables: [] };
+  }
+
+  function groupPdfLines(items) {
+    if (!items.length) return [];
+    const lines = [];
+    let current = null;
+    items.forEach(it => {
+      const y = it.transform[5];
+      const h = it.height || Math.abs(it.transform[3]) || 10;
+      if (!current || Math.abs(current.y - y) > 3) {
+        if (current) lines.push(current);
+        current = { y, text: it.str, maxHeight: h };
+      } else {
+        current.text += (it.str.startsWith(' ') ? '' : ' ') + it.str;
+        if (h > current.maxHeight) current.maxHeight = h;
+      }
+    });
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  /* ---------- Image OCR Parser ---------- */
+  async function parseImage(file, onProgress) {
+    const dataUrl = await readAsDataURL(file);
+    let text = '';
+    try {
+      const result = await Tesseract.recognize(dataUrl, 'amh+eng', {
+        logger: m => {
+          if (m.status === 'recognizing text' && onProgress) onProgress(m.progress);
+        }
+      });
+      text = (result.data.text || '').trim();
+    } catch (err) {
+      try {
+        const result = await Tesseract.recognize(dataUrl, 'eng', {
+          logger: m => {
+            if (m.status === 'recognizing text' && onProgress) onProgress(m.progress);
+          }
+        });
+        text = (result.data.text || '').trim();
+      } catch (e2) { text = ''; }
+    }
+
+    const blocks = [];
+    blocks.push({ kind: 'heading', level: 1, text: file.name.replace(/\.[^.]+$/, '') });
+    blocks.push({ kind: 'image', src: dataUrl });
+
+    if (text) {
+      const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      blocks.push({ kind: 'list', ordered: false, items: lines });
+    }
+
+    return { type: 'image', name: file.name, blocks, images: [dataUrl], tables: [], rawText: text };
+  }
+
+  /* ---------- TXT Parser ---------- */
+  async function parseText(input) {
+    const text = (typeof input === 'string') ? input : await readAsText(input);
+    const blocks = parseTextToBlocks(text);
+    return {
+      type: 'text',
+      name: (typeof input === 'string') ? 'Pasted Text' : input.name,
+      rawText: text, blocks, images: [], tables: []
+    };
+  }
+
+  /* ---------- Text → Blocks (with table detection) ---------- */
+  function parseTextToBlocks(text) {
+    const blocks = [];
+    const lines = text.split(/\r?\n/);
+    let bulletGroup = [];
+    let tableGroup = [];
+
+    const flushBullets = () => {
+      if (bulletGroup.length) {
+        blocks.push({ kind: 'list', ordered: false, items: bulletGroup });
+        bulletGroup = [];
+      }
+    };
+    const flushTable = () => {
+      if (tableGroup.length >= 2) {
+        const maxCols = Math.max(...tableGroup.map(r => r.length));
+        tableGroup.forEach(r => { while (r.length < maxCols) r.push(''); });
+        blocks.push({ kind: 'table', rows: tableGroup });
+      } else if (tableGroup.length === 1) {
+        // single row -> treat as paragraph
+        blocks.push({ kind: 'paragraph', text: tableGroup[0].join(' ') });
+      }
+      tableGroup = [];
+    };
+
+    for (let raw of lines) {
+      const line = raw.trim();
+      if (!line) {
+        flushBullets(); flushTable();
+        continue;
+      }
+
+      // Table row detection: pipe-separated or tab-separated
+      if (line.includes('|') && line.split('|').length >= 3) {
+        flushBullets();
+        const cells = line.split('|').map(c => c.trim()).filter((c, i, arr) =>
+          !(i === 0 && c === '') && !(i === arr.length - 1 && c === '')
+        );
+        // Skip markdown separator rows like |---|---|
+        if (!cells.every(c => /^[-:\s]+$/.test(c))) tableGroup.push(cells);
+        continue;
+      }
+      if (line.includes('\t')) {
+        flushBullets();
+        const cells = line.split('\t').map(c => c.trim());
+        tableGroup.push(cells);
+        continue;
+      }
+      flushTable();
+
+      // Heading detection
+      if (/^(ርዕስ|title|chapter|ምዕራፍ)\s*[:：]/i.test(line)) {
+        flushBullets();
+        blocks.push({ kind: 'heading', level: 1, text: line.replace(/^[^:：]+[:：]\s*/, '') });
+        continue;
+      }
+      if (/^#{1,6}\s+/.test(line)) {
+        flushBullets();
+        const lvl = (line.match(/^#+/) || ['#'])[0].length;
+        blocks.push({ kind: 'heading', level: lvl, text: line.replace(/^#+\s+/, '') });
+        continue;
+      }
+      // Bullet detection
+      if (/^[•●○◆★▪►➤\-*+]\s+/.test(line) || /^\d+[\.\)]\s+/.test(line)) {
+        bulletGroup.push(
+          line.replace(/^[•●○◆★▪►➤\-*+]\s+/, '').replace(/^\d+[\.\)]\s+/, '')
+        );
+        continue;
+      }
+
+      flushBullets();
+      blocks.push({ kind: 'paragraph', text: line });
+    }
+    flushBullets(); flushTable();
+
+    return blocks;
+  }
+
+  /* ---------- Sentence splitter (Amharic + English) ---------- */
+  function splitSentences(text) {
+    const parts = text.split(/(?<=[።\.!?])\s+/);
+    return parts.map(s => s.trim()).filter(s => s.length > 1);
+  }
+
+  /* ---------- Main dispatcher ---------- */
+  async function parseFile(file, onProgress) {
+    const name = file.name.toLowerCase();
+    if (name.endsWith('.docx')) return parseDocx(file);
+    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return parseExcel(file);
+    if (name.endsWith('.pdf')) return parsePdf(file, onProgress);
+    if (/\.(png|jpe?g|webp|bmp|gif)$/.test(name)) return parseImage(file, onProgress);
+    if (name.endsWith('.txt') || name.endsWith('.md')) return parseText(file);
+    return parseText(file);
+  }
+
+  return {
+    parseFile, parseDocx, parseExcel, parsePdf, parseImage, parseText,
+    parseTextToBlocks, splitSentences
+  };
+})();
+/* ===== translator.js ===== */
+/* =========================================================
+   Smart PPT Converter — Lightweight Offline Translator
+   - Uses a built-in Amharic ↔ English dictionary (common words)
+   - Provides best-effort word-level translation
+   - For "real" production use an offline translation API
+   ========================================================= */
+
+const Translator = (() => {
+
+  // Common bilingual dictionary (extend as needed)
+  const EN_AM = {
+    "introduction": "መግቢያ", "conclusion": "ማጠቃለያ",
+    "summary": "ማጠቃለያ", "overview": "አጠቃላይ እይታ",
+    "objective": "ዓላማ", "objectives": "ዓላማዎች",
+    "goal": "ግብ", "goals": "ግቦች",
+    "title": "ርዕስ", "chapter": "ምዕራፍ",
+    "history": "ታሪክ", "education": "ትምህርት",
+    "science": "ሳይንስ", "technology": "ቴክኖሎጂ",
+    "country": "ሀገር", "city": "ከተማ",
+    "people": "ሰዎች", "person": "ሰው",
+    "language": "ቋንቋ", "culture": "ባህል",
+    "government": "መንግሥት", "president": "ፕሬዚዳንት",
+    "agriculture": "ግብርና", "health": "ጤና",
+    "water": "ውሃ", "food": "ምግብ",
+    "school": "ትምህርት ቤት", "university": "ዩኒቨርሲቲ",
+    "student": "ተማሪ", "teacher": "መምህር",
+    "book": "መጽሐፍ", "page": "ገጽ",
+    "result": "ውጤት", "results": "ውጤቶች",
+    "method": "ዘዴ", "methods": "ዘዴዎች",
+    "data": "መረጃ", "information": "መረጃ",
+    "report": "ሪፖርት", "project": "ፕሮጀክት",
+    "ethiopia": "ኢትዮጵያ", "africa": "አፍሪካ",
+    "world": "ዓለም", "year": "ዓመት", "month": "ወር", "day": "ቀን",
+    "thank you": "አመሰግናለሁ", "hello": "ሰላም",
+    "welcome": "እንኳን ደህና መጡ", "yes": "አዎ", "no": "አይ"
+  };
+
+  const AM_EN = {};
+  Object.entries(EN_AM).forEach(([en, am]) => { AM_EN[am] = en; });
+
+  function hasEthiopic(s) { return /[\u1200-\u137F]/.test(s); }
+
+  function translate(text, target) {
+    if (!text || target === 'none') return text;
+    const src = hasEthiopic(text) ? 'am' : 'en';
+    if (src === target) return text;
+
+    if (target === 'bilingual') {
+      const other = src === 'am' ? 'en' : 'am';
+      return text + '  —  ' + translate(text, other);
+    }
+
+    const dict = (target === 'am') ? EN_AM : AM_EN;
+    // word-level replacement
+    return text.replace(/\b([\u1200-\u137F\w]+(?:\s+[\u1200-\u137F\w]+)?)\b/g, (m) => {
+      const k = m.toLowerCase();
+      return dict[k] || dict[m] || m;
+    });
+  }
+
+  return { translate, hasEthiopic };
+})();
+/* ===== pptBuilder.js ===== */
+/* =========================================================
+   Smart PPT Converter — PowerPoint Builder (v2 - EXPERT)
+   Uses PptxGenJS to generate beautiful .pptx files
+   ========================================================= */
+
+const PPTBuilder = (() => {
+
+  /* ---------- Theme definitions ---------- */
+  const THEMES = {
+    modern:    { bg: 'FFFFFF', titleColor: '1D4ED8', textColor: '1A2238', accent: '2563EB', secondary: '93A0C2', titleBarColor: '2563EB' },
+    dark:      { bg: '0B1020', titleColor: '60A5FA', textColor: 'E7ECF7', accent: '9333EA', secondary: '93A0C2', titleBarColor: '60A5FA' },
+    ethiopia:  { bg: 'FFFFFF', titleColor: '078930', textColor: '1A1A1A', accent: 'DA121A', secondary: 'FCDD09', titleBarColor: '078930' },
+    minimal:   { bg: 'FAFAFA', titleColor: '111111', textColor: '333333', accent: '888888', secondary: 'BBBBBB', titleBarColor: '111111' },
+    corporate: { bg: 'F3F4F6', titleColor: '0F172A', textColor: '1F2937', accent: 'F59E0B', secondary: '6B7280', titleBarColor: '0F172A' },
+    gradient:  { bg: 'FFFFFF', titleColor: '764BA2', textColor: '2D2D2D', accent: 'F093FB', secondary: '667EEA', titleBarColor: '764BA2' },
+    custom:    { bg: 'FFFFFF', titleColor: '1D4ED8', textColor: '1A2238', accent: 'F59E0B', secondary: '93A0C2', titleBarColor: '1D4ED8' }
+  };
+
+  function resolveTheme(opts) {
+    const base = { ...(THEMES[opts.theme] || THEMES.modern) };
+    // Override with custom colors if provided
+    if (opts.bgColor) base.bg = opts.bgColor;
+    if (opts.textColor) base.textColor = opts.textColor;
+    if (opts.titleColor) {
+      base.titleColor = opts.titleColor;
+      base.titleBarColor = opts.titleColor;
+    }
+    if (opts.accentColor) base.accent = opts.accentColor;
+    return base;
+  }
+
+  /* ---------- Bullet style mapping ---------- */
+  function getBulletConfig(style, index = 0) {
+    const styles = {
+      dot:      { type: 'bullet', characterCode: '25CF' },  // ●
+      check:    { type: 'bullet', characterCode: '2714' },  // ✔
+      arrow:    { type: 'bullet', characterCode: '27A4' },  // ➤
+      star:     { type: 'bullet', characterCode: '2605' },  // ★
+      diamond:  { type: 'bullet', characterCode: '25C6' },  // ◆
+      square:   { type: 'bullet', characterCode: '25AA' },  // ▪
+      number:   { type: 'number' },
+      ethiopia: { type: 'bullet', characterCode: '1369' }   // ፩
+    };
+    if (style === 'mixed') {
+      const all = ['dot', 'check', 'arrow', 'star', 'diamond', 'square', 'ethiopia'];
+      return styles[all[index % all.length]];
+    }
+    return styles[style] || styles.dot;
+  }
+
+  /* ---------- Style helpers ---------- */
+  function applyTitleStyle(style) {
+    const result = { bold: true };
+    switch (style) {
+      case 'bold': result.bold = true; break;
+      case 'bold-italic': result.bold = true; result.italic = true; break;
+      case 'bold-underline': result.bold = true; result.underline = { style: 'sng' }; break;
+      case 'italic': result.bold = false; result.italic = true; break;
+      case 'regular': result.bold = false; break;
+      case 'uppercase': result.bold = true; result.upper = true; break;
+    }
+    return result;
+  }
+  function applySubtitleStyle(style) {
+    const result = {};
+    switch (style) {
+      case 'bold': result.bold = true; break;
+      case 'bold-italic': result.bold = true; result.italic = true; break;
+      case 'italic': result.italic = true; break;
+      case 'underline': result.underline = { style: 'sng' }; break;
+      case 'regular': break;
+    }
+    return result;
+  }
+
+  /* ---------- Chunk items into slides ---------- */
+  function chunkItems(items, perSlide) {
+    const chunks = [];
+    for (let i = 0; i < items.length; i += perSlide) {
+      chunks.push(items.slice(i, i + perSlide));
+    }
+    return chunks;
+  }
+
+  /* ---------- Split table into chunks (rows × cols) ---------- */
+  function splitTable(rows, maxRows, maxCols) {
+    if (!rows.length) return [];
+
+    // First split by columns
+    const headerRow = rows[0];
+    const numCols = headerRow.length;
+    const colChunks = [];
+
+    if (numCols <= maxCols) {
+      colChunks.push({ startCol: 0, endCol: numCols });
+    } else {
+      for (let c = 0; c < numCols; c += maxCols) {
+        colChunks.push({ startCol: c, endCol: Math.min(c + maxCols, numCols) });
+      }
+    }
+
+    const result = [];
+    colChunks.forEach((cc, colIdx) => {
+      const slicedRows = rows.map(r => r.slice(cc.startCol, cc.endCol));
+      // Then split by rows (keep header on each slide)
+      const headerSlice = slicedRows[0];
+      const bodyRows = slicedRows.slice(1);
+
+      if (bodyRows.length + 1 <= maxRows) {
+        result.push({
+          rows: [headerSlice, ...bodyRows],
+          colPart: colChunks.length > 1 ? `Cols ${cc.startCol + 1}-${cc.endCol}` : '',
+          rowPart: '',
+          part: colChunks.length > 1 ? `(${colIdx + 1}/${colChunks.length})` : ''
+        });
+      } else {
+        const perSlide = maxRows - 1; // reserve 1 for header
+        for (let r = 0; r < bodyRows.length; r += perSlide) {
+          const slice = bodyRows.slice(r, r + perSlide);
+          const rowPartNum = Math.floor(r / perSlide) + 1;
+          const rowPartTotal = Math.ceil(bodyRows.length / perSlide);
+          result.push({
+            rows: [headerSlice, ...slice],
+            colPart: colChunks.length > 1 ? `Cols ${cc.startCol + 1}-${cc.endCol}` : '',
+            rowPart: rowPartTotal > 1 ? `Rows ${r + 1}-${Math.min(r + perSlide, bodyRows.length)}` : '',
+            part: `(${colIdx * Math.ceil(bodyRows.length / perSlide) + rowPartNum}/${colChunks.length * rowPartTotal})`
+          });
+        }
+      }
+    });
+    return result;
+  }
+
+  /* ---------- Convert parsed blocks into slide specs ---------- */
+  function blocksToSlides(parsed, opts) {
+    const slides = [];
+    const perSlide = opts.linesPerSlide || 6;
+    const maxRows = parseInt(opts.maxTableRows) || 15;
+    const maxCols = parseInt(opts.maxTableCols) || 10;
+
+    let currentTitle = parsed.name.replace(/\.[^.]+$/, '');
+    let currentSubtitle = '';
+    let currentBullets = []; // array of {text, isSubheading, bold, italic}
+    let pendingImages = [];
+
+    const flush = () => {
+      if (currentBullets.length === 0 && pendingImages.length === 0) return;
+      if (currentBullets.length === 0 && pendingImages.length > 0) {
+        slides.push({
+          type: 'content',
+          title: currentTitle,
+          subtitle: currentSubtitle,
+          bullets: [],
+          images: pendingImages.slice()
+        });
+        pendingImages = [];
+        return;
+      }
+
+      const chunks = chunkItems(currentBullets, perSlide);
+      chunks.forEach((chunk, idx) => {
+        let titleForSlide = currentTitle;
+        let continuationLabel = '';
+
+        if (chunks.length > 1 && idx > 0 && opts.continueLabel) {
+          continuationLabel = '...የቀጠለ';
+        }
+
+        slides.push({
+          type: 'content',
+          title: titleForSlide,
+          subtitle: currentSubtitle,
+          continuationLabel,
+          partInfo: chunks.length > 1 ? `${idx + 1}/${chunks.length}` : '',
+          bullets: chunk,
+          images: idx === 0 ? pendingImages.slice() : []
+        });
+      });
+      currentBullets = [];
+      pendingImages = [];
+    };
+
+    for (const block of parsed.blocks) {
+      if (block.kind === 'heading') {
+        flush();
+        if (block.level === 1 || block.isTitle) {
+          currentTitle = block.text;
+          currentSubtitle = '';
+        } else if (block.level === 2 || block.isSubtitle) {
+          currentSubtitle = block.text;
+        } else {
+          // h3+ as subheading IN content
+          currentBullets.push({
+            text: block.text,
+            isSubheading: true,
+            level: block.level
+          });
+        }
+      } else if (block.kind === 'paragraph') {
+        const sentences = Parsers.splitSentences(block.text);
+        sentences.forEach(s => currentBullets.push({
+          text: s, bold: block.bold, italic: block.italic
+        }));
+      } else if (block.kind === 'quote') {
+        currentBullets.push({ text: '"' + block.text + '"', italic: true });
+      } else if (block.kind === 'list') {
+        block.items.forEach(it => currentBullets.push({ text: it }));
+      } else if (block.kind === 'table' && opts.includeTables) {
+        flush();
+        const tableChunks = splitTable(block.rows, maxRows, maxCols);
+        tableChunks.forEach((tc, idx) => {
+          let titleForTable = currentTitle;
+          if (idx > 0 && opts.continueLabel) titleForTable += ''; // we add label separately
+          slides.push({
+            type: 'table',
+            title: titleForTable,
+            subtitle: currentSubtitle,
+            continuationLabel: idx > 0 && opts.continueLabel ? '...የቀጠለ' : '',
+            partInfo: tc.part || '',
+            tablePart: [tc.rowPart, tc.colPart].filter(Boolean).join(' • '),
+            rows: tc.rows
+          });
+        });
+      } else if (block.kind === 'chart' && opts.includeCharts) {
+        flush();
+        slides.push({
+          type: 'chart',
+          title: block.title || currentTitle,
+          subtitle: currentSubtitle,
+          chartType: block.chartType || 'bar',
+          series: block.series
+        });
+      } else if (block.kind === 'image' && opts.includeImages) {
+        pendingImages.push(block.src);
+      }
+    }
+    flush();
+    return slides;
+  }
+
+  /* ---------- Main build function ---------- */
+  async function build(parsedFiles, opts) {
+    if (typeof PptxGenJS === 'undefined') {
+      throw new Error('PptxGenJS library not loaded. Please check your internet connection or refresh.');
+    }
+
+    const pptx = new PptxGenJS();
+    pptx.layout = opts.layout || 'LAYOUT_WIDE';
+    pptx.title = opts.title || 'Smart PPT';
+    pptx.author = opts.author || 'Smart PPT Converter';
+    pptx.company = 'Smart PPT Converter';
+
+    const theme = resolveTheme(opts);
+    const font = opts.font || 'Noto Sans Ethiopic';
+
+    // Font sizes
+    const fsTitle = parseInt(opts.fontSizeTitle) || 28;
+    const fsSubtitle = parseInt(opts.fontSizeSubtitle) || 22;
+    const fsBody = parseInt(opts.fontSizeBody) || 18;
+    const fsTable = parseInt(opts.fontSizeTable) || 11;
+
+    const titleStyle = applyTitleStyle(opts.titleStyle || 'bold');
+    const subtitleStyle = applySubtitleStyle(opts.subtitleStyle || 'bold-italic');
+
+    // Define master slide
+    pptx.defineSlideMaster({
+      title: 'MAIN',
+      background: { color: theme.bg },
+      objects: [
+        { rect: { x: 0, y: 0, w: '100%', h: 0.18, fill: { color: theme.titleBarColor } } },
+        { rect: { x: 0, y: 7.32, w: '100%', h: 0.04, fill: { color: theme.accent } } }
+      ],
+      slideNumber: opts.slideNumbers ? {
+        x: 0.4, y: 7.1, w: 1.5, h: 0.25,
+        fontSize: 10, color: theme.secondary, fontFace: font
+      } : null
+    });
+
+    // ===== Title slide =====
+    if (opts.titleSlide !== false) {
+      const s = pptx.addSlide({ masterName: 'MAIN' });
+      s.background = { color: theme.bg };
+      s.addText(opts.title || 'Smart PPT Presentation', {
+        x: 0.5, y: 2.4, w: 12.3, h: 1.3,
+        fontSize: Math.max(fsTitle + 16, 36),
+        bold: true, fontFace: font,
+        color: theme.titleColor, align: 'center'
+      });
+      s.addText(opts.author ? `በ ${opts.author}` : 'Auto-generated by Smart PPT Converter', {
+        x: 0.5, y: 3.9, w: 12.3, h: 0.6,
+        fontSize: Math.max(fsSubtitle - 2, 16),
+        italic: true,
+        fontFace: font, color: theme.textColor, align: 'center'
+      });
+      s.addText(new Date().toLocaleDateString(), {
+        x: 0.5, y: 4.6, w: 12.3, h: 0.4,
+        fontSize: 14, fontFace: font, color: theme.secondary, align: 'center'
+      });
+      if (opts.animation && opts.animation !== 'none') {
+        s.transition = { type: opts.animation, duration: 1 };
+      }
+    }
+
+    // Build slide specs from all files
+    const allSlideSpecs = [];
+    parsedFiles.forEach(parsed => {
+      const slideSpecs = blocksToSlides(parsed, opts);
+      allSlideSpecs.push(...slideSpecs);
+    });
+
+    // ===== Table of Contents =====
+    if (opts.includeTOC && allSlideSpecs.length > 1) {
+      const seen = new Set();
+      const tocItems = [];
+      allSlideSpecs.forEach(s => {
+        if (s.continuationLabel) return;
+        const t = s.title;
+        if (t && !seen.has(t)) { seen.add(t); tocItems.push(t); }
+      });
+      const tocPages = chunkItems(tocItems, Math.max(6, opts.linesPerSlide || 6));
+      tocPages.forEach((page, idx) => {
+        const s = pptx.addSlide({ masterName: 'MAIN' });
+        const tocTitle = idx === 0 ? 'የይዘት ሰንጠረዥ • Table of Contents'
+                                   : 'የይዘት ሰንጠረዥ ...የቀጠለ';
+        s.addText(tocTitle, {
+          x: 0.5, y: 0.4, w: 12.3, h: 0.8,
+          fontSize: fsTitle + 2, bold: true, fontFace: font,
+          color: theme.titleColor
+        });
+        s.addText(page.map((t, i) => ({
+          text: `${idx * (opts.linesPerSlide || 6) + i + 1}.  ${t}`,
+          options: { fontSize: fsBody, color: theme.textColor, fontFace: font, breakLine: true }
+        })), {
+          x: 0.7, y: 1.4, w: 12, h: 5.5,
+          paraSpaceAfter: 8, valign: 'top', fontFace: font
+        });
+        if (opts.animation && opts.animation !== 'none') {
+          s.transition = { type: opts.animation, duration: 0.8 };
+        }
+      });
+    }
+
+    // ===== Build each content slide =====
+    allSlideSpecs.forEach((spec) => {
+      const slide = pptx.addSlide({ masterName: 'MAIN' });
+
+      // Translate title
+      let title = spec.title || 'Slide';
+      if (opts.translateTo && opts.translateTo !== 'none') {
+        title = Translator.translate(title, opts.translateTo);
+      }
+
+      // Title row: continuation label on left, title in middle, part info on right
+      const titleProps = {
+        x: 0.5, y: 0.32, w: 12.3, h: 0.7,
+        fontSize: fsTitle, fontFace: font,
+        color: theme.titleColor, valign: 'middle',
+        ...titleStyle
+      };
+
+      slide.addText(title, titleProps);
+
+      // Continuation label (left side, italic)
+      if (spec.continuationLabel) {
+        slide.addText(spec.continuationLabel, {
+          x: 0.5, y: 1.05, w: 4, h: 0.35,
+          fontSize: Math.max(fsSubtitle - 4, 12),
+          italic: true, fontFace: font,
+          color: theme.accent, valign: 'top', align: 'left'
+        });
+      }
+
+      // Part info (right side)
+      if (spec.partInfo) {
+        slide.addText(spec.partInfo, {
+          x: 9.0, y: 1.05, w: 3.8, h: 0.35,
+          fontSize: 11, italic: true, fontFace: font,
+          color: theme.secondary, align: 'right'
+        });
+      }
+
+      // Subtitle row
+      let subtitleY = spec.continuationLabel || spec.partInfo ? 1.45 : 1.1;
+      if (spec.subtitle) {
+        slide.addText(spec.subtitle, {
+          x: 0.5, y: subtitleY, w: 12.3, h: 0.4,
+          fontSize: fsSubtitle, fontFace: font,
+          color: theme.accent, ...subtitleStyle
+        });
+        subtitleY += 0.5;
+      }
+
+      // Accent line under title block
+      slide.addShape(pptx.ShapeType.rect, {
+        x: 0.5, y: subtitleY, w: 1.5, h: 0.05,
+        fill: { color: theme.accent }, line: { color: theme.accent }
+      });
+      const contentTop = subtitleY + 0.2;
+
+      if (spec.type === 'content') {
+        const bullets = spec.bullets || [];
+        const hasImage = spec.images && spec.images.length > 0;
+
+        // Build text array — distinguish subheadings (bigger, bold) from body
+        const textArray = [];
+        bullets.forEach((b, i) => {
+          let txt = (typeof b === 'string') ? b : b.text;
+          const isSubheading = (typeof b === 'object') && b.isSubheading;
+          const isBold = (typeof b === 'object') && b.bold;
+          const isItalic = (typeof b === 'object') && b.italic;
+
+          if (opts.translateTo && opts.translateTo !== 'none') {
+            txt = Translator.translate(txt, opts.translateTo);
+          }
+          if (txt.length > 220) txt = txt.substring(0, 217) + '...';
+
+          if (isSubheading) {
+            // Subheading - no bullet, bold, larger font
+            textArray.push({
+              text: txt,
+              options: {
+                fontFace: font,
+                color: theme.accent,
+                fontSize: Math.min(fsBody + 4, 36),
+                bold: true,
+                italic: false,
+                breakLine: true,
+                paraSpaceBefore: 6,
+                paraSpaceAfter: 4
+              }
+            });
+          } else {
+            textArray.push({
+              text: txt,
+              options: {
+                bullet: getBulletConfig(opts.bulletStyle, i),
+                fontFace: font,
+                color: theme.textColor,
+                fontSize: fsBody,
+                bold: !!isBold,
+                italic: !!isItalic,
+                breakLine: true
+              }
+            });
+          }
+        });
+
+        if (textArray.length) {
+          slide.addText(textArray, {
+            x: 0.6, y: contentTop,
+            w: hasImage ? 7.5 : 12.0,
+            h: 7.0 - contentTop,
+            valign: 'top', paraSpaceAfter: 6,
+            fontFace: font
+          });
+        }
+
+        if (hasImage) {
+          try {
+            slide.addImage({
+              data: spec.images[0],
+              x: 8.4, y: contentTop, w: 4.4, h: 3.3,
+              sizing: { type: 'contain', w: 4.4, h: 3.3 }
+            });
+          } catch (e) { console.warn('image add error', e); }
+        }
+
+      } else if (spec.type === 'table') {
+        const rows = spec.rows;
+        const numCols = rows[0] ? rows[0].length : 1;
+
+        // Auto-fit font size for big tables
+        let tableFs = fsTable;
+        if (opts.bigTableMode === 'shrink') {
+          tableFs = Math.max(7, Math.floor(fsTable * (10 / Math.max(numCols, 10))));
+        }
+
+        // Calculate column widths
+        const tableW = 12.3;
+        const colW = Array(numCols).fill(tableW / numCols);
+
+        const tableData = rows.map((row, ri) => row.map(cell => ({
+          text: String(cell),
+          options: {
+            bold: ri === 0,
+            color: ri === 0 ? 'FFFFFF' : theme.textColor,
+            fill: ri === 0
+              ? { color: theme.titleBarColor }
+              : { color: ri % 2 ? 'F8FAFC' : 'FFFFFF' },
+            fontFace: font,
+            fontSize: tableFs,
+            align: 'left',
+            valign: 'middle'
+          }
+        })));
+
+        // Part label (e.g., "Rows 1-15 • Cols 1-10")
+        if (spec.tablePart) {
+          slide.addText(spec.tablePart, {
+            x: 0.5, y: contentTop, w: 12.3, h: 0.3,
+            fontSize: 11, italic: true, fontFace: font,
+            color: theme.secondary
+          });
+        }
+
+        const tableY = spec.tablePart ? contentTop + 0.35 : contentTop;
+        const tableH = 7.0 - tableY;
+
+        try {
+          slide.addTable(tableData, {
+            x: 0.5, y: tableY, w: tableW, h: tableH,
+            colW: colW,
+            border: { type: 'solid', pt: 0.5, color: theme.secondary },
+            fontFace: font,
+            autoPage: false
+          });
+        } catch (e) {
+          console.warn('table error', e);
+          slide.addText('⚠ ሰንጠረዙ ሊገባ አልቻለም: ' + e.message, {
+            x: 0.5, y: tableY, w: 12.3, h: 1,
+            fontSize: 14, color: 'CC0000', fontFace: font
+          });
+        }
+
+      } else if (spec.type === 'chart') {
+        try {
+          const chartData = spec.series.map(s => ({
+            name: s.name, labels: s.labels, values: s.values
+          }));
+          slide.addChart(pptx.ChartType.bar, chartData, {
+            x: 0.6, y: contentTop, w: 12.0, h: 7.0 - contentTop,
+            chartColors: ['2563EB', 'F59E0B', '10B981', 'EF4444', '9333EA', '06B6D4'],
+            showLegend: true, legendPos: 'b', showTitle: false,
+            catAxisLabelFontFace: font, valAxisLabelFontFace: font,
+            catAxisLabelFontSize: 10, valAxisLabelFontSize: 10
+          });
+        } catch (e) {
+          console.warn('chart add error', e);
+        }
+      }
+
+      // Footer
+      if (opts.footerToggle) {
+        slide.addText(opts.title || 'Smart PPT', {
+          x: 5.0, y: 7.1, w: 5, h: 0.25,
+          fontSize: 10, color: theme.secondary, fontFace: font, align: 'center'
+        });
+      }
+
+      if (opts.animation && opts.animation !== 'none') {
+        slide.transition = { type: opts.animation, duration: 0.7 };
+      }
+    });
+
+    // ===== Closing slide =====
+    if (opts.thankYouSlide !== false) {
+      const s = pptx.addSlide({ masterName: 'MAIN' });
+      s.background = { color: theme.titleBarColor };
+      s.addText('አመሰግናለሁ!\nThank You!', {
+        x: 0.5, y: 2.6, w: 12.3, h: 2,
+        fontSize: Math.max(fsTitle + 28, 50),
+        bold: true, fontFace: font, color: 'FFFFFF', align: 'center'
+      });
+      s.addText('Questions & Answers', {
+        x: 0.5, y: 4.8, w: 12.3, h: 0.6,
+        fontSize: fsSubtitle, italic: true,
+        fontFace: font, color: 'FFFFFF', align: 'center'
+      });
+      if (opts.animation && opts.animation !== 'none') {
+        s.transition = { type: opts.animation, duration: 1 };
+      }
+    }
+
+    return pptx;
+  }
+
+  /* ---------- Preview HTML generator ---------- */
+  function buildPreview(parsedFiles, opts) {
+    const allSpecs = [];
+    parsedFiles.forEach(p => allSpecs.push(...blocksToSlides(p, opts)));
+    const theme = resolveTheme(opts);
+
+    const html = allSpecs.map((s, i) => {
+      let body = '';
+      if (s.type === 'content') {
+        body = '<ul>' + s.bullets.map(b => {
+          const text = (typeof b === 'string') ? b : b.text;
+          const isSub = (typeof b === 'object') && b.isSubheading;
+          const safe = escapeHtml(String(text).substring(0, 120));
+          return isSub
+            ? `<li style="list-style:none;font-weight:bold;color:#${theme.accent};margin-left:-14px;">${safe}</li>`
+            : `<li>${safe}</li>`;
+        }).join('') + '</ul>';
+        if (s.images && s.images[0]) {
+          body += `<div style="text-align:center;margin-top:6px;"><img src="${s.images[0]}" style="max-width:80px;max-height:50px;border-radius:4px;"></div>`;
+        }
+      } else if (s.type === 'table') {
+        body = `<div style="font-size:9px;color:#666;">📊 Table: ${s.rows.length} rows × ${s.rows[0]?.length || 0} cols ${s.tablePart ? '<br>'+escapeHtml(s.tablePart) : ''}</div>`;
+      } else if (s.type === 'chart') {
+        body = `<div style="font-size:9px;color:#666;">📈 Chart: ${s.series.length} series</div>`;
+      }
+
+      const continueLabel = s.continuationLabel
+        ? `<div style="font-size:9px;color:#${theme.accent};font-style:italic;margin-bottom:2px;">${s.continuationLabel}</div>`
+        : '';
+
+      return `
+        <div class="slide-preview" style="background:#${theme.bg};color:#${theme.textColor};">
+          <span class="sp-num">#${i + 1}${s.partInfo ? ' • ' + escapeHtml(s.partInfo) : ''}</span>
+          <div class="sp-title" style="color:#${theme.titleColor};border-color:#${theme.accent};">${escapeHtml(s.title || 'Slide')}</div>
+          ${continueLabel}
+          <div class="sp-body">${body}</div>
+        </div>`;
+    }).join('');
+    return html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  return { build, buildPreview, blocksToSlides };
+})();
+/* ===== app.js ===== */
+/* =========================================================
+   Smart PPT Converter — Main App Controller (v2 EXPERT)
+   ========================================================= */
+
+(() => {
+  const state = { files: [], parsed: [], pastedText: '' };
+
+  const $ = id => document.getElementById(id);
+  const dropzone = $('dropzone');
+  const fileInput = $('fileInput');
+  const fileList = $('fileList');
+  const rawText = $('rawText');
+  const useTextBtn = $('useTextBtn');
+  const convertBtn = $('convertBtn');
+  const previewBtn = $('previewBtn');
+  const resetBtn = $('resetBtn');
+  const progressWrap = $('progressWrap');
+  const progressFill = $('progressFill');
+  const progressText = $('progressText');
+  const resultBox = $('resultBox');
+  const previewCard = $('previewCard');
+  const slidesPreview = $('slidesPreview');
+  const themeToggle = $('themeToggle');
+  const libStatus = $('libStatus');
+  const bgPreset = $('bgPreset');
+  const bgCustomColor = $('bgCustomColor');
+
+  /* ---------- Library Check ---------- */
+  function checkLibraries() {
+    const required = {
+      'PptxGenJS': typeof PptxGenJS !== 'undefined',
+      'XLSX': typeof XLSX !== 'undefined',
+      'mammoth': typeof mammoth !== 'undefined',
+      'pdfjsLib': typeof pdfjsLib !== 'undefined',
+      'Tesseract': typeof Tesseract !== 'undefined'
+    };
+    const missing = Object.entries(required).filter(([k, v]) => !v).map(([k]) => k);
+    if (missing.length === 0) {
+      libStatus.textContent = '✅ ሁሉም ላይብረሪዎች ዝግጁ ናቸው';
+      libStatus.className = 'lib-status ok';
+      return true;
+    } else {
+      libStatus.textContent = `⚠ ጠፍተዋል: ${missing.join(', ')}`;
+      libStatus.className = 'lib-status err';
+      return false;
+    }
+  }
+
+  // Check every 500ms for up to 15 seconds
+  let libCheckCount = 0;
+  const libCheckInterval = setInterval(() => {
+    libCheckCount++;
+    if (checkLibraries() || libCheckCount > 30) {
+      clearInterval(libCheckInterval);
+    }
+  }, 500);
+
+  /* ---------- Toast ---------- */
+  const toast = $('toast');
+  let toastTimer;
+  function showToast(msg, type = '') {
+    toast.textContent = msg;
+    toast.className = 'toast show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.className = 'toast'; }, 3500);
+  }
+
+  /* ---------- Progress ---------- */
+  function setProgress(pct, text) {
+    progressWrap.hidden = false;
+    progressFill.style.width = Math.round(pct * 100) + '%';
+    if (text) progressText.textContent = text;
+  }
+  function hideProgress() {
+    setTimeout(() => { progressWrap.hidden = true; }, 1000);
+  }
+
+  /* ---------- File Handling ---------- */
+  function fileIconFor(name) {
+    const n = name.toLowerCase();
+    if (n.endsWith('.docx')) return '📄';
+    if (n.endsWith('.xlsx') || n.endsWith('.xls')) return '📊';
+    if (n.endsWith('.pdf')) return '📕';
+    if (/\.(png|jpe?g|webp|bmp|gif)$/.test(n)) return '🖼️';
+    if (n.endsWith('.txt') || n.endsWith('.md')) return '📝';
+    return '📎';
+  }
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+  }
+  function renderFileList() {
+    fileList.innerHTML = state.files.map((f, i) => `
+      <div class="file-item">
+        <span class="file-icon">${fileIconFor(f.name)}</span>
+        <span class="file-name">${escapeHtml(f.name)}</span>
+        <span class="file-size">${fmtSize(f.size)}</span>
+        <button class="file-remove" data-i="${i}" title="ሰርዝ">×</button>
+      </div>`).join('');
+    fileList.querySelectorAll('.file-remove').forEach(btn => {
+      btn.onclick = () => {
+        state.files.splice(parseInt(btn.dataset.i), 1);
+        renderFileList();
+      };
+    });
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function addFiles(fileListLike) {
+    const arr = Array.from(fileListLike);
+    const allowed = /\.(docx|xlsx|xls|pdf|txt|md|png|jpe?g|webp|bmp|gif)$/i;
+    arr.forEach(f => {
+      if (!allowed.test(f.name)) {
+        showToast(`አይደገፍም: ${f.name}`, 'error');
+        return;
+      }
+      state.files.push(f);
+    });
+    renderFileList();
+    if (arr.length) showToast(`${arr.length} ፋይል ታክሏል`, 'success');
+  }
+
+  // Dropzone
+  dropzone.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'INPUT' && !e.target.closest('label')) fileInput.click();
+  });
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault(); dropzone.classList.remove('drag');
+    addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', e => addFiles(e.target.files));
+
+  // Use text button
+  useTextBtn.addEventListener('click', () => {
+    state.pastedText = rawText.value.trim();
+    if (!state.pastedText) { showToast('ምንም ጽሑፍ የለም', 'error'); return; }
+    showToast('ጽሑፍ ተዘጋጅቷል ✓', 'success');
+  });
+
+  // Background preset toggle
+  bgPreset.addEventListener('change', () => {
+    if (bgPreset.value === 'custom') {
+      bgCustomColor.style.display = 'block';
+    } else {
+      bgCustomColor.style.display = 'none';
+    }
+  });
+
+  /* ---------- Hex helper ---------- */
+  function toHex(value) {
+    if (!value) return '';
+    if (value.startsWith('#')) return value.substring(1).toUpperCase();
+    return value.toUpperCase();
+  }
+
+  /* ---------- Gather Options ---------- */
+  function gatherOptions() {
+    // Determine background color
+    let bgColor = '';
+    const presetVal = bgPreset.value;
+    if (presetVal === 'custom') bgColor = toHex(bgCustomColor.value);
+    else if (presetVal) bgColor = presetVal;
+
+    return {
+      title: $('pptTitle').value.trim() || 'Smart PPT Presentation',
+      author: $('pptAuthor').value.trim() || '',
+      theme: $('pptTheme').value,
+      font: $('pptFont').value,
+      layout: $('pptLayout').value,
+      linesPerSlide: parseInt($('linesPerSlide').value),
+      bulletStyle: $('bulletStyle').value,
+      animation: $('animation').value,
+      translateTo: $('translateTo').value,
+
+      // Font sizes
+      fontSizeTitle: parseInt($('fontSizeTitle').value),
+      fontSizeSubtitle: parseInt($('fontSizeSubtitle').value),
+      fontSizeBody: parseInt($('fontSizeBody').value),
+      fontSizeTable: parseInt($('fontSizeTable').value),
+
+      // Styles
+      titleStyle: $('titleStyle').value,
+      subtitleStyle: $('subtitleStyle').value,
+
+      // Colors
+      bgColor: bgColor,
+      textColor: toHex($('textColor').value),
+      titleColor: toHex($('titleColor').value),
+      accentColor: toHex($('accentColor').value),
+
+      // Tables
+      maxTableRows: parseInt($('maxTableRows').value) || 15,
+      maxTableCols: parseInt($('maxTableCols').value) || 10,
+      bigTableMode: $('bigTableMode').value,
+
+      // Toggles
+      includeTOC: $('includeTOC').checked,
+      includeImages: $('includeImages').checked,
+      includeTables: $('includeTables').checked,
+      includeCharts: $('includeCharts').checked,
+      slideNumbers: $('slideNumbers').checked,
+      footerToggle: $('footerToggle').checked,
+      continueLabel: $('continueLabel').checked,
+      titleSlide: $('titleSlide').checked,
+      thankYouSlide: $('thankYouSlide').checked
+    };
+  }
+
+  /* ---------- Parse all ---------- */
+  async function parseAll() {
+    state.parsed = [];
+    const total = state.files.length + (state.pastedText ? 1 : 0);
+    if (!total) {
+      showToast('እባክዎ ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ', 'error');
+      return false;
+    }
+
+    let done = 0;
+    for (const f of state.files) {
+      setProgress(done / total, `እያነበበ: ${f.name}`);
+      try {
+        const parsed = await Parsers.parseFile(f, (p) => {
+          setProgress((done + p) / total, `እያነበበ: ${f.name} (${Math.round(p * 100)}%)`);
+        });
+        state.parsed.push(parsed);
+      } catch (err) {
+        console.error(err);
+        showToast(`ስህተት: ${f.name} - ${err.message}`, 'error');
+      }
+      done++;
+    }
+
+    if (state.pastedText) {
+      setProgress(done / total, 'ጽሑፍ በማነበብ ላይ...');
+      const parsed = await Parsers.parseText(state.pastedText);
+      state.parsed.push(parsed);
+      done++;
+    }
+
+    setProgress(1, '✓ ሁሉም ፋይሎች ተነበዋል');
+    return state.parsed.length > 0;
+  }
+
+  /* ---------- Convert ---------- */
+  convertBtn.addEventListener('click', async () => {
+    // Library check first
+    if (typeof PptxGenJS === 'undefined') {
+      showToast('⚠ PptxGenJS አልተጫነም። እባክዎ ገጹን ይዝጉና እንደገና ይክፈቱ።', 'error');
+      return;
+    }
+
+    resultBox.hidden = true;
+    convertBtn.disabled = true;
+    const t0 = performance.now();
+
+    try {
+      const opts = gatherOptions();
+      const ok = await parseAll();
+      if (!ok) { convertBtn.disabled = false; return; }
+
+      setProgress(0.85, '🎨 ፓወር ፖይንት በመገንባት ላይ...');
+      const pptx = await PPTBuilder.build(state.parsed, opts);
+
+      setProgress(0.95, '💾 ፋይል በማዘጋጀት ላይ...');
+      const filename = (opts.title || 'presentation')
+        .replace(/[^\w\u1200-\u137F\s-]/g, '').trim() + '.pptx';
+      await pptx.writeFile({ fileName: filename });
+
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      setProgress(1, '✅ ተጠናቋል!');
+      hideProgress();
+
+      // Calculate slide count
+      let totalSlides = 0;
+      if (opts.titleSlide) totalSlides++;
+      if (opts.thankYouSlide) totalSlides++;
+      state.parsed.forEach(p => {
+        totalSlides += PPTBuilder.blocksToSlides(p, opts).length;
+      });
+      if (opts.includeTOC && totalSlides > 2) {
+        totalSlides += Math.ceil(state.parsed.reduce((a, p) =>
+          a + PPTBuilder.blocksToSlides(p, opts).filter(s => !s.continuationLabel).length, 0
+        ) / (opts.linesPerSlide || 6));
+      }
+
+      resultBox.hidden = false;
+      resultBox.innerHTML = `
+        <h3>🎉 ስኬት! በ ${elapsed} ሰከንዶች ውስጥ ተጠናቅቋል</h3>
+        <p>ጠቅላላ ~${totalSlides} ስላይዶች ተፈጥረዋል • ፋይሉ ወደ ኮምፒውተርዎ ወርዷል</p>
+        <p style="font-size:13px;color:#666;margin-top:8px;">📁 ${escapeHtml(filename)}</p>
+      `;
+      showToast(`✅ በ ${elapsed}s ውስጥ ${totalSlides} ስላይዶች ተፈጥረዋል`, 'success');
+
+    } catch (err) {
+      console.error(err);
+      showToast('ስህተት: ' + err.message, 'error');
+      hideProgress();
+    } finally {
+      convertBtn.disabled = false;
+    }
+  });
+
+  /* ---------- Preview ---------- */
+  previewBtn.addEventListener('click', async () => {
+    try {
+      const opts = gatherOptions();
+      const ok = await parseAll();
+      if (!ok) return;
+
+      const html = PPTBuilder.buildPreview(state.parsed, opts);
+      slidesPreview.innerHTML = html || '<p>ምንም ስላይድ የለም</p>';
+      previewCard.hidden = false;
+      hideProgress();
+      previewCard.scrollIntoView({ behavior: 'smooth' });
+      showToast('ቅድመ እይታ ተዘጋጅቷል', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('ስህተት: ' + err.message, 'error');
+    }
+  });
+
+  /* ---------- Reset ---------- */
+  resetBtn.addEventListener('click', () => {
+    state.files = []; state.parsed = []; state.pastedText = '';
+    fileInput.value = ''; rawText.value = '';
+    renderFileList();
+    resultBox.hidden = true; previewCard.hidden = true; progressWrap.hidden = true;
+    showToast('ሁሉም ነገር ተሰርዟል', '');
+  });
+
+  /* ---------- Theme toggle ---------- */
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('sppt-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  });
+  if (localStorage.getItem('sppt-theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+
+  // Theme auto-update color pickers
+  $('pptTheme').addEventListener('change', () => {
+    const theme = $('pptTheme').value;
+    const presets = {
+      modern:    { bg: '', text: '#1a2238', title: '#1d4ed8', accent: '#f59e0b' },
+      dark:      { bg: '#0B1020', text: '#E7ECF7', title: '#60A5FA', accent: '#9333EA' },
+      ethiopia:  { bg: '#FFFFFF', text: '#1A1A1A', title: '#078930', accent: '#DA121A' },
+      minimal:   { bg: '#FAFAFA', text: '#333333', title: '#111111', accent: '#888888' },
+      corporate: { bg: '#F3F4F6', text: '#1F2937', title: '#0F172A', accent: '#F59E0B' },
+      gradient:  { bg: '#FFFFFF', text: '#2D2D2D', title: '#764BA2', accent: '#F093FB' }
+    };
+    if (presets[theme]) {
+      const p = presets[theme];
+      if (p.bg) { bgPreset.value = p.bg.substring(1); bgCustomColor.style.display = 'none'; }
+      $('textColor').value = p.text;
+      $('titleColor').value = p.title;
+      $('accentColor').value = p.accent;
+    }
+  });
+
+  setTimeout(() => showToast('እንኳን ደህና መጡ! ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ 👋', 'success'), 800);
+})();
+
+/* =====================================================================
+   ╔══════════════════════════════════════════════════════════════════╗
+   ║  PART 2: PWA + RIBBON + SLIDESHOW + RECORDER + REVIEW + INSERT  ║
+   ║          (Extends Smart PPT Converter to a full PowerPoint-like  ║
+   ║           offline app with installable PWA support)              ║
+   ╚══════════════════════════════════════════════════════════════════╝
+   ===================================================================== */
+
+/* =====================================================================
+   1) PWA: Service Worker Registration + Install Prompt
+   ===================================================================== */
+const PWAManager = (() => {
+  let deferredPrompt = null;
+
+  // Register service worker (if available)
+  async function register() {
+    if (!('serviceWorker' in navigator)) {
+      console.log('[PWA] Service workers not supported');
+      return false;
+    }
+    try {
+      // Try to register; works only when served over http(s)
+      if (location.protocol === 'file:') {
+        console.warn('[PWA] file:// protocol — SW disabled. Use a local server or download from a hosted URL for full offline support.');
+        return false;
+      }
+      const reg = await navigator.serviceWorker.register('./service-worker.js', { scope: './' });
+      console.log('[PWA] Service worker registered:', reg.scope);
+
+      // Check for updates
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showToast('🔄 አዲስ ስሪት አለ — ገጹን ይዝጉና ይክፈቱ', 'success');
+            }
+          });
+        }
+      });
+      return true;
+    } catch (e) {
+      console.warn('[PWA] SW registration failed:', e);
+      return false;
+    }
+  }
+
+  // Capture install prompt
+  function setupInstallPrompt() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').style.display = 'inline-flex';
+      // Show banner if not dismissed before
+      if (!localStorage.getItem('sppt-install-dismissed')) {
+        setTimeout(() => {
+          document.getElementById('installBanner').classList.add('show');
+        }, 4000);
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      showToast('✅ አፕሊኬሽኑ በተሳካ ሁኔታ ተጭኗል!', 'success');
+      document.getElementById('installBanner').classList.remove('show');
+      document.getElementById('installBtn').style.display = 'none';
+      deferredPrompt = null;
+    });
+  }
+
+  async function promptInstall() {
+    if (!deferredPrompt) {
+      showToast('💡 ብራውዘሩ ለመጫን አልጠቆመም። በChrome/Edge ላይ ይሞክሩ፣ ወይም በብራውዘሩ ምናሌ "Add to Home Screen" ይጫኑ።', 'success');
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log('[PWA] User choice:', outcome);
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('show');
+  }
+
+  return { register, setupInstallPrompt, promptInstall };
+})();
+
+PWAManager.register();
+PWAManager.setupInstallPrompt();
+
+// Install banner handlers
+document.getElementById('ibInstall').addEventListener('click', () => PWAManager.promptInstall());
+document.getElementById('ibLater').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+document.getElementById('ibClose').addEventListener('click', () => {
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('sppt-install-dismissed', '1');
+});
+document.getElementById('installBtn').addEventListener('click', () => PWAManager.promptInstall());
+
+/* =====================================================================
+   2) Online / Offline status indicator
+   ===================================================================== */
+(function networkStatus() {
+  const el = document.getElementById('onlineStatus');
+  function update() {
+    if (navigator.onLine) {
+      el.className = 'online-status';
+      el.innerHTML = '<span class="dot"></span>Online';
+    } else {
+      el.className = 'online-status offline';
+      el.innerHTML = '<span class="dot"></span>Offline (App still works ✓)';
+    }
+  }
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+  update();
+})();
+
+/* =====================================================================
+   3) RIBBON TAB MANAGER
+   ===================================================================== */
+const RibbonManager = (() => {
+  function init() {
+    document.querySelectorAll('.ribbon-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+  }
+  function switchTab(name) {
+    document.querySelectorAll('.ribbon-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.ribbon-content').forEach(c => c.classList.toggle('active', c.dataset.content === name));
+  }
+  return { init, switchTab };
+})();
+RibbonManager.init();
+
+/* =====================================================================
+   4) DESIGN GALLERY (theme cards)
+   ===================================================================== */
+const DesignGallery = (() => {
+  const themes = [
+    { id: 'modern',    name: 'Modern Blue',  bg: '#FFFFFF', title: '#1D4ED8', accent: '#F59E0B' },
+    { id: 'dark',      name: 'Dark Pro',     bg: '#0B1020', title: '#60A5FA', accent: '#9333EA' },
+    { id: 'ethiopia',  name: 'Ethiopia 🇪🇹', bg: '#FFFFFF', title: '#078930', accent: '#DA121A' },
+    { id: 'minimal',   name: 'Minimal',      bg: '#FAFAFA', title: '#111111', accent: '#888888' },
+    { id: 'corporate', name: 'Corporate',    bg: '#F3F4F6', title: '#0F172A', accent: '#F59E0B' },
+    { id: 'gradient',  name: 'Sunset',       bg: '#FFFFFF', title: '#764BA2', accent: '#F093FB' },
+    { id: 'ocean',     name: 'Ocean',        bg: '#E0F2FE', title: '#0369A1', accent: '#06B6D4' },
+    { id: 'forest',    name: 'Forest',       bg: '#F0FDF4', title: '#166534', accent: '#84CC16' },
+    { id: 'royal',     name: 'Royal',        bg: '#FAF5FF', title: '#581C87', accent: '#FBBF24' },
+    { id: 'midnight',  name: 'Midnight',     bg: '#1E1B4B', title: '#A5B4FC', accent: '#F472B6' },
+    { id: 'coral',     name: 'Coral',        bg: '#FFF7ED', title: '#9A3412', accent: '#FB923C' },
+    { id: 'mint',      name: 'Mint Fresh',   bg: '#ECFDF5', title: '#047857', accent: '#10B981' }
+  ];
+
+  function render() {
+    const gallery = document.getElementById('designGallery');
+    gallery.innerHTML = themes.map(t => `
+      <div class="design-card ${t.id === 'modern' ? 'selected' : ''}" data-theme="${t.id}"
+           style="background:${t.bg};">
+        <div class="dc-title" style="color:${t.title};">${t.name}</div>
+        <div class="dc-bars">
+          <div class="dc-bar" style="background:${t.title};"></div>
+          <div class="dc-bar" style="background:${t.accent};"></div>
+          <div class="dc-bar" style="background:${t.title}88;"></div>
+        </div>
+      </div>
+    `).join('');
+
+    gallery.querySelectorAll('.design-card').forEach(card => {
+      card.addEventListener('click', () => {
+        gallery.querySelectorAll('.design-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const theme = themes.find(t => t.id === card.dataset.theme);
+        if (theme) {
+          // Map to existing settings if theme exists, else use as custom
+          const sel = document.getElementById('pptTheme');
+          const exists = Array.from(sel.options).some(o => o.value === theme.id);
+          if (exists) {
+            sel.value = theme.id;
+            sel.dispatchEvent(new Event('change'));
+          } else {
+            sel.value = 'custom';
+            document.getElementById('textColor').value = theme.title;
+            document.getElementById('titleColor').value = theme.title;
+            document.getElementById('accentColor').value = theme.accent;
+            document.getElementById('bgPreset').value = 'custom';
+            document.getElementById('bgCustomColor').value = theme.bg;
+            document.getElementById('bgCustomColor').style.display = 'block';
+          }
+          document.getElementById('dsnBg').value = theme.bg;
+          document.getElementById('dsnTitle').value = theme.title;
+          document.getElementById('dsnAccent').value = theme.accent;
+          showToast(`🎨 ${theme.name} ቴማ ተመረጠ`, 'success');
+        }
+      });
+    });
+  }
+  return { render, themes };
+})();
+DesignGallery.render();
+
+/* =====================================================================
+   5) TRANSITIONS GALLERY
+   ===================================================================== */
+const TransitionsGallery = (() => {
+  const transitions = [
+    { id: 'none',  name: 'ምንም',   ic: '✕' },
+    { id: 'fade',  name: 'Fade',  ic: '🌫' },
+    { id: 'push',  name: 'Push',  ic: '👉' },
+    { id: 'wipe',  name: 'Wipe',  ic: '🧹' },
+    { id: 'split', name: 'Split', ic: '✂' },
+    { id: 'zoom',  name: 'Zoom',  ic: '🔍' },
+    { id: 'flip',  name: 'Flip',  ic: '🔄' },
+    { id: 'cut',   name: 'Cut',   ic: '⚡' }
+  ];
+
+  function render() {
+    const gallery = document.getElementById('transGallery');
+    gallery.innerHTML = transitions.map(t => `
+      <div class="trans-card ${t.id === 'fade' ? 'selected' : ''}" data-trans="${t.id}">
+        <span class="tc-ic">${t.ic}</span>${t.name}
+      </div>
+    `).join('');
+
+    gallery.querySelectorAll('.trans-card').forEach(card => {
+      card.addEventListener('click', () => {
+        gallery.querySelectorAll('.trans-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        // Map to existing animation select if exists
+        const animSel = document.getElementById('animation');
+        const supported = ['none', 'fade', 'push', 'wipe', 'split', 'zoom'];
+        if (supported.includes(card.dataset.trans)) {
+          animSel.value = card.dataset.trans;
+        } else {
+          animSel.value = 'fade';
+        }
+        window._currentTransition = card.dataset.trans;
+        showToast(`🔀 ${card.querySelector('.tc-ic').nextSibling.textContent} ትራንዚሽን ተመረጠ`, 'success');
+      });
+    });
+  }
+  return { render, transitions };
+})();
+TransitionsGallery.render();
+
+/* =====================================================================
+   6) ANIMATIONS GALLERY (for live slide show)
+   ===================================================================== */
+const AnimationsGallery = (() => {
+  const animations = [
+    { id: 'none',     name: 'ምንም',      ic: '✕' },
+    { id: 'fade',     name: 'Fade In',   ic: '🌫' },
+    { id: 'slide-r',  name: 'Slide R→L', ic: '⬅' },
+    { id: 'slide-l',  name: 'Slide L→R', ic: '➡' },
+    { id: 'zoom',     name: 'Zoom',      ic: '🔍' },
+    { id: 'flip',     name: 'Flip',      ic: '🔄' },
+    { id: 'rotate',   name: 'Rotate',    ic: '🌀' },
+    { id: 'bounce',   name: 'Bounce',    ic: '🏀' }
+  ];
+
+  function render() {
+    const gallery = document.getElementById('animGallery');
+    gallery.innerHTML = animations.map(a => `
+      <div class="trans-card ${a.id === 'fade' ? 'selected' : ''}" data-anim="${a.id}">
+        <span class="tc-ic">${a.ic}</span>${a.name}
+      </div>
+    `).join('');
+
+    gallery.querySelectorAll('.trans-card').forEach(card => {
+      card.addEventListener('click', () => {
+        gallery.querySelectorAll('.trans-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        window._currentAnimation = card.dataset.anim;
+        showToast(`✨ አኒሜሽን ተመረጠ`, 'success');
+      });
+    });
+  }
+  return { render, animations };
+})();
+AnimationsGallery.render();
+window._currentAnimation = 'fade';
+window._currentTransition = 'fade';
+
+/* =====================================================================
+   7) SLIDE SHOW MODE (Full-screen presentation)
+   ===================================================================== */
+const SlideShow = (() => {
+  let currentSlides = [];
+  let currentIdx = 0;
+  let autoPlay = false;
+  let autoTimer = null;
+  let autoSec = 5;
+
+  async function ensureSlides() {
+    // Try to parse current files into slides
+    if (typeof state === 'undefined' || (!state.files.length && !state.pastedText)) {
+      showToast('እባክዎ መጀመሪያ ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ', 'error');
+      return false;
+    }
+    // Re-parse if needed
+    if (!state.parsed.length) {
+      const ok = await parseAllFromShow();
+      if (!ok) return false;
+    }
+    const opts = gatherOptionsForShow();
+    currentSlides = [];
+    state.parsed.forEach(p => currentSlides.push(...PPTBuilder.blocksToSlides(p, opts)));
+    if (!currentSlides.length) {
+      showToast('ምንም ስላይድ የለም', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  // Re-implement parsing helper for slideshow
+  async function parseAllFromShow() {
+    state.parsed = [];
+    for (const f of state.files) {
+      try {
+        const parsed = await Parsers.parseFile(f);
+        state.parsed.push(parsed);
+      } catch (e) { console.warn(e); }
+    }
+    if (state.pastedText) {
+      const parsed = await Parsers.parseText(state.pastedText);
+      state.parsed.push(parsed);
+    }
+    return state.parsed.length > 0;
+  }
+
+  function gatherOptionsForShow() {
+    return {
+      linesPerSlide: parseInt(document.getElementById('linesPerSlide').value) || 6,
+      maxTableRows: parseInt(document.getElementById('maxTableRows').value) || 15,
+      maxTableCols: parseInt(document.getElementById('maxTableCols').value) || 10,
+      includeTables: document.getElementById('includeTables').checked,
+      includeCharts: document.getElementById('includeCharts').checked,
+      includeImages: document.getElementById('includeImages').checked,
+      continueLabel: document.getElementById('continueLabel').checked,
+      translateTo: document.getElementById('translateTo').value,
+      bulletStyle: document.getElementById('bulletStyle').value
+    };
+  }
+
+  async function start(fromIdx = 0) {
+    const ok = await ensureSlides();
+    if (!ok) return;
+    currentIdx = Math.max(0, Math.min(fromIdx, currentSlides.length - 1));
+    const overlay = document.getElementById('slideshowOverlay');
+    overlay.classList.add('show');
+    render();
+    // Try to go fullscreen
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    if (autoPlay) startAutoTimer();
+  }
+
+  function exit() {
+    document.getElementById('slideshowOverlay').classList.remove('show');
+    stopAutoTimer();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  function render() {
+    if (!currentSlides.length) return;
+    const slide = currentSlides[currentIdx];
+    const stage = document.getElementById('slideshowStage');
+    const anim = window._currentAnimation || 'fade';
+
+    let bodyHtml = '';
+    if (slide.type === 'content') {
+      bodyHtml = '<ul>' + slide.bullets.map(b => {
+        const text = (typeof b === 'string') ? b : b.text;
+        const isSub = (typeof b === 'object') && b.isSubheading;
+        const safe = escapeHTML(text);
+        return isSub
+          ? `<li style="list-style:none; font-weight:bold; color:#f59e0b; margin-left:-30px;">${safe}</li>`
+          : `<li>${safe}</li>`;
+      }).join('') + '</ul>';
+      if (slide.images && slide.images[0]) {
+        bodyHtml += `<div style="text-align:center;margin-top:16px;"><img src="${slide.images[0]}" style="max-height:200px; border-radius:8px;"></div>`;
+      }
+    } else if (slide.type === 'table') {
+      bodyHtml = '<table class="ss-table"><thead><tr>'
+        + slide.rows[0].map(c => `<th>${escapeHTML(String(c))}</th>`).join('')
+        + '</tr></thead><tbody>'
+        + slide.rows.slice(1).map(r => '<tr>' + r.map(c => `<td>${escapeHTML(String(c))}</td>`).join('') + '</tr>').join('')
+        + '</tbody></table>';
+    } else if (slide.type === 'chart') {
+      bodyHtml = `<div style="text-align:center; padding:60px 20px; color:#666;">📈 ${escapeHTML(slide.title)}<br><span style="font-size:14px;">${slide.series.length} ተከታታይ</span></div>`;
+    }
+
+    const continueHtml = slide.continuationLabel
+      ? `<div class="ss-continue">${escapeHTML(slide.continuationLabel)}</div>`
+      : '';
+    const subtitleHtml = slide.subtitle ? `<h2>${escapeHTML(slide.subtitle)}</h2>` : '';
+
+    stage.innerHTML = `
+      <div class="slideshow-slide anim-${anim}" id="ssSlide">
+        ${continueHtml}
+        <h1>${escapeHTML(slide.title || 'Slide')}</h1>
+        ${subtitleHtml}
+        <div class="ss-body">${bodyHtml}</div>
+      </div>`;
+
+    // trigger animation
+    requestAnimationFrame(() => {
+      const el = document.getElementById('ssSlide');
+      if (el) el.classList.add('in');
+    });
+
+    // Update counter & progress
+    document.getElementById('ssCounter').textContent = `${currentIdx + 1} / ${currentSlides.length}`;
+    document.getElementById('ssProgressBar').style.width =
+      ((currentIdx + 1) / currentSlides.length * 100) + '%';
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function next() {
+    if (currentIdx < currentSlides.length - 1) {
+      currentIdx++; render();
+    } else if (autoPlay) {
+      currentIdx = 0; render();
+    } else {
+      showToast('🏁 መጨረሻ ላይ ደርሰዋል', 'success');
+    }
+  }
+  function prev() {
+    if (currentIdx > 0) { currentIdx--; render(); }
+  }
+
+  function toggleAutoplay() {
+    autoPlay = !autoPlay;
+    autoSec = parseInt(document.getElementById('ssAutoSec').value) || 5;
+    if (autoPlay) {
+      startAutoTimer();
+      showToast(`▶ አውቶ-ፕሌይ በ${autoSec} ሰከንዶች`, 'success');
+    } else {
+      stopAutoTimer();
+      showToast('⏸ አውቶ-ፕሌይ ቆሟል', '');
+    }
+    document.getElementById('ssPlayPause').textContent = autoPlay ? '⏸' : '▶';
+  }
+  function startAutoTimer() {
+    stopAutoTimer();
+    autoTimer = setInterval(() => next(), autoSec * 1000);
+  }
+  function stopAutoTimer() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  }
+
+  return { start, exit, next, prev, toggleAutoplay, render };
+})();
+
+// Wire up slideshow controls
+document.getElementById('ssNext').addEventListener('click', () => SlideShow.next());
+document.getElementById('ssPrev').addEventListener('click', () => SlideShow.prev());
+document.getElementById('ssExit').addEventListener('click', () => SlideShow.exit());
+document.getElementById('ssPlayPause').addEventListener('click', () => SlideShow.toggleAutoplay());
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('slideshowOverlay');
+  const inShow = overlay.classList.contains('show');
+  if (inShow) {
+    if (e.key === 'Escape') SlideShow.exit();
+    else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); SlideShow.next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); SlideShow.prev();
+    } else if (e.key === 'Home') {
+      // restart
+      SlideShow.start(0);
+    }
+  } else {
+    // F5 = start slideshow, Shift+F5 = from current
+    if (e.key === 'F5' && !e.shiftKey) { e.preventDefault(); SlideShow.start(0); }
+    else if (e.key === 'F5' && e.shiftKey) { e.preventDefault(); SlideShow.start(0); }
+  }
+});
+
+/* =====================================================================
+   8) VOICE / SCREEN RECORDER
+   ===================================================================== */
+const Recorder = (() => {
+  let mediaRecorder = null;
+  let chunks = [];
+  let stream = null;
+  let timerInterval = null;
+  let startTime = 0;
+  let pausedAccum = 0;
+  let isPaused = false;
+  let recordings = []; // {url, blob, name, type, duration}
+
+  function fmt(ms) {
+    const total = Math.floor(ms / 1000);
+    const m = String(Math.floor(total / 60)).padStart(2, '0');
+    const s = String(total % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  async function start(kind = 'audio') {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      showToast('አስቀድሞ እየቀረጸ ነው', 'error'); return;
+    }
+    document.getElementById('recorderCard').style.display = 'block';
+    document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'});
+
+    try {
+      if (kind === 'screen') {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      } else if (kind === 'camera') {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      } else {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+    } catch (e) {
+      showToast('የመቅረጽ ፈቃድ አልተሰጠም: ' + e.message, 'error');
+      return;
+    }
+
+    chunks = [];
+    const mime = kind === 'audio' ? 'audio/webm' : 'video/webm';
+    try {
+      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+    } catch (e) {
+      mediaRecorder = new MediaRecorder(stream);
+    }
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mime });
+      const url = URL.createObjectURL(blob);
+      const name = `recording-${Date.now()}.${kind === 'audio' ? 'webm' : 'webm'}`;
+      const duration = (performance.now() - startTime - pausedAccum) / 1000;
+      recordings.push({ url, blob, name, type: kind, duration });
+      renderList();
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      showToast(`✅ ${kind} ቅጅ ተጠናቅቋል (${fmt(duration*1000)})`, 'success');
+    };
+
+    mediaRecorder.start(250);
+    startTime = performance.now();
+    pausedAccum = 0; isPaused = false;
+    document.getElementById('recDot').style.display = 'inline-block';
+    document.getElementById('recState').textContent = 'እየቀረጸ ነው...';
+    document.getElementById('recBtnStart').disabled = true;
+    document.getElementById('recBtnPause').disabled = false;
+    document.getElementById('recBtnStop').disabled = false;
+    timerInterval = setInterval(() => {
+      if (!isPaused) {
+        const elapsed = performance.now() - startTime - pausedAccum;
+        document.getElementById('recTime').textContent = fmt(elapsed);
+      }
+    }, 250);
+  }
+
+  function pause() {
+    if (!mediaRecorder) return;
+    if (mediaRecorder.state === 'recording') {
+      mediaRecorder.pause();
+      isPaused = true;
+      window._pauseStart = performance.now();
+      document.getElementById('recState').textContent = 'ቆሟል (paused)';
+      document.getElementById('recBtnPause').textContent = '▶ ቀጥል';
+    } else if (mediaRecorder.state === 'paused') {
+      mediaRecorder.resume();
+      pausedAccum += performance.now() - (window._pauseStart || performance.now());
+      isPaused = false;
+      document.getElementById('recState').textContent = 'እየቀረጸ ነው...';
+      document.getElementById('recBtnPause').textContent = '⏸ ዘግይ';
+    }
+  }
+
+  function stop() {
+    if (!mediaRecorder) return;
+    mediaRecorder.stop();
+    clearInterval(timerInterval); timerInterval = null;
+    document.getElementById('recDot').style.display = 'none';
+    document.getElementById('recState').textContent = 'ዝግጁ';
+    document.getElementById('recBtnStart').disabled = false;
+    document.getElementById('recBtnPause').disabled = true;
+    document.getElementById('recBtnStop').disabled = true;
+    document.getElementById('recBtnPause').textContent = '⏸ ዘግይ';
+  }
+
+  function renderList() {
+    const list = document.getElementById('recordingsList');
+    if (!recordings.length) { list.innerHTML = ''; return; }
+    list.innerHTML = recordings.map((r, i) => `
+      <div class="recording-item">
+        <span style="font-size:18px;">${r.type === 'audio' ? '🎵' : '🎬'}</span>
+        ${r.type === 'audio' ? `<audio src="${r.url}" controls></audio>` : `<video src="${r.url}" controls style="flex:1; max-height:120px;"></video>`}
+        <span style="font-size:11px; color:var(--text-soft);">${fmt(r.duration*1000)}</span>
+        <a href="${r.url}" download="${r.name}" style="color:var(--primary); text-decoration:none; padding:4px 8px;" title="አውርድ">💾</a>
+        <button onclick="Recorder.remove(${i})" title="አጥፋ">✕</button>
+      </div>`).join('');
+  }
+
+  function remove(i) {
+    URL.revokeObjectURL(recordings[i].url);
+    recordings.splice(i, 1);
+    renderList();
+  }
+
+  function downloadAll() {
+    recordings.forEach(r => {
+      const a = document.createElement('a');
+      a.href = r.url; a.download = r.name; a.click();
+    });
+  }
+  function clearAll() {
+    recordings.forEach(r => URL.revokeObjectURL(r.url));
+    recordings = [];
+    renderList();
+    showToast('ሁሉም ቅጅዎች ተሰርዘዋል', '');
+  }
+
+  return { start, pause, stop, remove, downloadAll, clearAll, renderList };
+})();
+window.Recorder = Recorder; // expose for inline onclick
+
+// Wire recorder buttons
+document.getElementById('recBtnStart').addEventListener('click', () => Recorder.start('audio'));
+document.getElementById('recBtnPause').addEventListener('click', () => Recorder.pause());
+document.getElementById('recBtnStop').addEventListener('click', () => Recorder.stop());
+
+/* =====================================================================
+   9) COMMENTS / REVIEW
+   ===================================================================== */
+const Comments = (() => {
+  let items = JSON.parse(localStorage.getItem('sppt-comments') || '[]');
+
+  function save() { localStorage.setItem('sppt-comments', JSON.stringify(items)); }
+
+  function add(author, text) {
+    if (!text.trim()) return;
+    items.push({
+      author: author.trim() || 'Anonymous',
+      text: text.trim(),
+      time: new Date().toISOString()
+    });
+    save(); render();
+  }
+  function remove(i) { items.splice(i, 1); save(); render(); }
+  function clearAll() { items = []; save(); render(); showToast('ሁሉም አስተያየቶች ተሰርዘዋል', ''); }
+
+  function render() {
+    const list = document.getElementById('commentsList');
+    if (!items.length) {
+      list.innerHTML = '<p style="color:var(--text-soft); text-align:center; padding:20px;">ምንም አስተያየት የለም። የመጀመሪያውን ይጨምሩ!</p>';
+      return;
+    }
+    list.innerHTML = items.map((c, i) => `
+      <div class="comment-item">
+        <div class="comment-avatar">${escapeHtml(c.author[0] || '?').toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="comment-author">${escapeHtml(c.author)}<span class="comment-time">${new Date(c.time).toLocaleString()}</span></div>
+          <div class="comment-text">${escapeHtml(c.text)}</div>
+        </div>
+        <button class="comment-del" onclick="Comments.remove(${i})">✕</button>
+      </div>`).join('');
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+  return { add, remove, clearAll, render, getAll: () => items.slice() };
+})();
+window.Comments = Comments;
+
+document.getElementById('cmtAdd').addEventListener('click', () => {
+  Comments.add(
+    document.getElementById('cmtAuthor').value,
+    document.getElementById('cmtText').value
+  );
+  document.getElementById('cmtText').value = '';
+});
+document.getElementById('cmtText').addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('cmtAdd').click();
+});
+Comments.render();
+
+/* =====================================================================
+  10) CUSTOM TABLE INSERT
+   ===================================================================== */
+const CustomTable = (() => {
+  function renderPreview() {
+    const r = parseInt(document.getElementById('customTblRows').value) || 5;
+    const c = parseInt(document.getElementById('customTblCols').value) || 4;
+    const rows = Math.min(20, Math.max(1, r));
+    const cols = Math.min(22, Math.max(1, c));
+    const tbl = document.getElementById('customTblPreview');
+    let html = '';
+    for (let i = 0; i < rows; i++) {
+      html += '<tr>';
+      for (let j = 0; j < cols; j++) {
+        const isHeader = i === 0;
+        const style = `border:1px solid var(--border); padding:6px 10px; ${isHeader ? 'background:var(--primary); color:white; font-weight:700;' : ''}`;
+        html += `<${isHeader ? 'th' : 'td'} contenteditable="true" style="${style}">${isHeader ? `Col ${j+1}` : `${i},${j+1}`}</${isHeader ? 'th' : 'td'}>`;
+      }
+      html += '</tr>';
+    }
+    tbl.innerHTML = html;
+  }
+
+  function collectRows() {
+    const tbl = document.getElementById('customTblPreview');
+    const rows = [];
+    tbl.querySelectorAll('tr').forEach(tr => {
+      const cells = Array.from(tr.querySelectorAll('th,td')).map(c => c.textContent.trim());
+      rows.push(cells);
+    });
+    return rows;
+  }
+
+  function addToSlide() {
+    const rows = collectRows();
+    if (!rows.length) { showToast('ሰንጠረዡ ባዶ ነው', 'error'); return; }
+    const title = document.getElementById('customTblTitle').value.trim() || 'ብጁ ሰንጠረዥ';
+
+    // Inject as a pseudo-parsed file
+    const pseudo = {
+      type: 'custom', name: title,
+      blocks: [
+        { kind: 'heading', level: 1, text: title },
+        { kind: 'table', rows }
+      ],
+      images: [], tables: [rows]
+    };
+    state.parsed.push(pseudo);
+    state.pastedText = state.pastedText + ''; // keep as is
+
+    document.getElementById('insertTableCard').style.display = 'none';
+    showToast(`✅ ሰንጠረዥ ተጨምሯል (${rows.length} ሮ × ${rows[0].length} ኮ) — አሁን "ቀይር" ይጫኑ`, 'success');
+  }
+
+  return { renderPreview, addToSlide };
+})();
+document.getElementById('customTblRows').addEventListener('input', () => CustomTable.renderPreview());
+document.getElementById('customTblCols').addEventListener('input', () => CustomTable.renderPreview());
+document.getElementById('customTblAdd').addEventListener('click', () => CustomTable.addToSlide());
+document.getElementById('customTblCancel').addEventListener('click', () => {
+  document.getElementById('insertTableCard').style.display = 'none';
+});
+
+/* =====================================================================
+  11) STAGE / WORKSPACE VIEW (slide rail + canvas)
+   ===================================================================== */
+const Workspace = (() => {
+  let slides = [];
+  let activeIdx = 0;
+
+  async function refresh() {
+    document.getElementById('stageCard').style.display = 'block';
+    if (!state.files.length && !state.pastedText) {
+      slides = [{
+        title: 'እንኳን ደህና መጡ!',
+        bullets: [{text: 'ፋይል ይምረጡ ወይም ጽሑፍ ይለጥፉ'}, {text: 'ከዚያ "ቀይር" ይጫኑ'}]
+      }];
+      renderRail(); renderCanvas(); return;
+    }
+    if (!state.parsed.length) {
+      for (const f of state.files) {
+        try { state.parsed.push(await Parsers.parseFile(f)); } catch (e) {}
+      }
+      if (state.pastedText) state.parsed.push(await Parsers.parseText(state.pastedText));
+    }
+    const opts = {
+      linesPerSlide: parseInt(document.getElementById('linesPerSlide').value) || 6,
+      maxTableRows: parseInt(document.getElementById('maxTableRows').value) || 15,
+      maxTableCols: parseInt(document.getElementById('maxTableCols').value) || 10,
+      includeTables: true, includeCharts: true, includeImages: true,
+      continueLabel: true, bulletStyle: 'dot'
+    };
+    slides = [];
+    state.parsed.forEach(p => slides.push(...PPTBuilder.blocksToSlides(p, opts)));
+    activeIdx = 0;
+    renderRail(); renderCanvas();
+  }
+
+  function renderRail() {
+    const rail = document.getElementById('slidesRail');
+    if (!slides.length) { rail.innerHTML = '<p style="text-align:center; color:var(--text-soft); padding:20px;">ምንም ስላይድ የለም</p>'; return; }
+    rail.innerHTML = slides.map((s, i) => {
+      let snippet = '';
+      if (s.type === 'content' && s.bullets) {
+        snippet = s.bullets.slice(0, 3).map(b => typeof b === 'string' ? b : b.text).join(' • ');
+      } else if (s.type === 'table') snippet = `📊 ${s.rows.length}×${s.rows[0]?.length || 0} ሰንጠረዥ`;
+      else if (s.type === 'chart') snippet = `📈 ${s.series?.length || 0} ቻርት`;
+      return `
+        <div class="rail-slide ${i === activeIdx ? 'active' : ''}" data-i="${i}">
+          <span class="rs-num">${i + 1}</span>
+          <div class="rs-title">${escapeHtml(s.title || 'Slide')}</div>
+          <div class="rs-snippet">${escapeHtml(snippet)}</div>
+        </div>`;
+    }).join('');
+    rail.querySelectorAll('.rail-slide').forEach(el => {
+      el.addEventListener('click', () => {
+        activeIdx = parseInt(el.dataset.i);
+        renderRail(); renderCanvas();
+      });
+    });
+  }
+
+  function renderCanvas() {
+    const canvas = document.getElementById('stageCanvas');
+    const info = document.getElementById('stageInfo');
+    if (!slides.length) { canvas.innerHTML = ''; info.textContent = 'ስላይድ — / —'; return; }
+    const s = slides[activeIdx];
+    info.textContent = `ስላይድ ${activeIdx + 1} / ${slides.length}`;
+
+    let body = '';
+    if (s.type === 'content') {
+      body = '<ul>' + s.bullets.map(b => {
+        const t = typeof b === 'string' ? b : b.text;
+        const isSub = typeof b === 'object' && b.isSubheading;
+        const safe = escapeHtml(t);
+        return isSub ? `<li style="list-style:none; font-weight:bold; color:var(--accent); margin-left:-20px;">${safe}</li>` : `<li>${safe}</li>`;
+      }).join('') + '</ul>';
+      if (s.images && s.images[0]) body += `<div style="text-align:center;margin-top:10px;"><img src="${s.images[0]}" style="max-height:150px;border-radius:6px;"></div>`;
+    } else if (s.type === 'table') {
+      body = '<table style="width:100%; border-collapse: collapse; font-size: 13px;">'
+        + s.rows.map((r, i) => '<tr>' + r.map(c => `<${i === 0 ? 'th' : 'td'} style="border:1px solid #ccc; padding:6px 10px; ${i === 0 ? 'background:#1d4ed8; color:white;' : ''}">${escapeHtml(String(c))}</${i === 0 ? 'th' : 'td'}>`).join('') + '</tr>').join('')
+        + '</table>';
+    } else if (s.type === 'chart') {
+      body = `<div style="text-align:center; padding:40px; color:#666;">📈 ${escapeHtml(s.title)} (${s.series?.length || 0} ተከታታይ)</div>`;
+    }
+    canvas.innerHTML = `<h2>${escapeHtml(s.title || 'Slide')}${s.continuationLabel ? ` <span style="font-size:14px; color:#f59e0b; font-style:italic; font-weight: 400;">${escapeHtml(s.continuationLabel)}</span>` : ''}</h2><div class="sc-body">${body}</div>`;
+  }
+
+  function next() { if (activeIdx < slides.length - 1) { activeIdx++; renderRail(); renderCanvas(); } }
+  function prev() { if (activeIdx > 0) { activeIdx--; renderRail(); renderCanvas(); } }
+  function del()  {
+    if (slides.length <= 1) { showToast('ቢያንስ አንድ ስላይድ መኖር አለበት', 'error'); return; }
+    slides.splice(activeIdx, 1);
+    if (activeIdx >= slides.length) activeIdx = slides.length - 1;
+    renderRail(); renderCanvas();
+    showToast('ስላይድ ተሰርዟል', '');
+  }
+  function dup()  {
+    if (!slides[activeIdx]) return;
+    const copy = JSON.parse(JSON.stringify(slides[activeIdx]));
+    copy.title = (copy.title || 'Slide') + ' (Copy)';
+    slides.splice(activeIdx + 1, 0, copy);
+    activeIdx++;
+    renderRail(); renderCanvas();
+    showToast('ስላይድ ተባዝቷል', 'success');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  return { refresh, next, prev, del, dup, get slides() { return slides; } };
+})();
+
+document.getElementById('stageNext').addEventListener('click', () => Workspace.next());
+document.getElementById('stagePrev').addEventListener('click', () => Workspace.prev());
+document.getElementById('stageDelete').addEventListener('click', () => Workspace.del());
+document.getElementById('stageDuplicate').addEventListener('click', () => Workspace.dup());
+
+/* =====================================================================
+  12) RIBBON BUTTON ACTIONS (wire all ribbon buttons)
+   ===================================================================== */
+function rbn(id, fn) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', fn);
+}
+
+// HOME tab
+rbn('rbnConvert',  () => document.getElementById('convertBtn').click());
+rbn('rbnNew',      () => { document.getElementById('resetBtn').click(); RibbonManager.switchTab('home'); });
+rbn('rbnUpload',   () => document.getElementById('fileInput').click());
+rbn('rbnPaste',    () => document.getElementById('rawText').focus());
+rbn('rbnPreview',  () => document.getElementById('previewBtn').click());
+rbn('rbnSlideshow',() => SlideShow.start(0));
+
+// Bind ribbon font/size/color to main settings
+document.getElementById('rbnFont').addEventListener('change', e => {
+  document.getElementById('pptFont').value = e.target.value;
+});
+document.getElementById('rbnFontSize').addEventListener('change', e => {
+  document.getElementById('fontSizeBody').value = e.target.value;
+});
+document.getElementById('rbnTextColor').addEventListener('input', e => {
+  document.getElementById('textColor').value = e.target.value;
+});
+document.getElementById('rbnBullet').addEventListener('change', e => {
+  document.getElementById('bulletStyle').value = e.target.value;
+});
+
+let _bold = false, _italic = false, _underline = false;
+rbn('rbnBold', () => {
+  _bold = !_bold;
+  document.getElementById('rbnBold').style.background = _bold ? 'rgba(37,99,235,0.25)' : '';
+  // Apply via titleStyle: combined
+  updateStylesFromRibbon();
+});
+rbn('rbnItalic', () => {
+  _italic = !_italic;
+  document.getElementById('rbnItalic').style.background = _italic ? 'rgba(37,99,235,0.25)' : '';
+  updateStylesFromRibbon();
+});
+rbn('rbnUnderline', () => {
+  _underline = !_underline;
+  document.getElementById('rbnUnderline').style.background = _underline ? 'rgba(37,99,235,0.25)' : '';
+  updateStylesFromRibbon();
+});
+function updateStylesFromRibbon() {
+  let s = 'regular';
+  if (_bold && _italic) s = 'bold-italic';
+  else if (_bold && _underline) s = 'bold-underline';
+  else if (_bold) s = 'bold';
+  else if (_italic) s = 'italic';
+  document.getElementById('titleStyle').value = s;
+}
+
+// INSERT tab
+rbn('insImage',   () => { document.getElementById('fileInput').setAttribute('accept','.png,.jpg,.jpeg,.webp'); document.getElementById('fileInput').click(); setTimeout(()=>document.getElementById('fileInput').setAttribute('accept','.docx,.xlsx,.xls,.pdf,.txt,.png,.jpg,.jpeg,.webp'),1000); });
+rbn('insTable',   () => { document.getElementById('insertTableCard').style.display = 'block'; CustomTable.renderPreview(); document.getElementById('insertTableCard').scrollIntoView({behavior:'smooth'}); });
+rbn('insChart',   () => { showToast('💡 Excel ፋይል ይምረጡ — ቻርቶች በራስ-ሰር ይፈጠራሉ', 'success'); document.getElementById('includeCharts').checked = true; });
+rbn('insShape',   () => insertSymbol('▭ ■ ● ▲ ★ ◆ ➜ ❤ ✦ ✪'));
+rbn('insIcon',    () => insertSymbol('😀 👍 🎉 📚 💡 ✅ ⭐ 🚀 ❤️ 🇪🇹'));
+rbn('insTextBox', () => document.getElementById('rawText').focus());
+rbn('insHeader',  () => insertText('\n# አዲስ ራስጌ\n'));
+rbn('insFooter',  () => { document.getElementById('footerToggle').checked = true; showToast('Footer ነቅቷል', 'success'); });
+rbn('insDate',    () => insertText(`\n${new Date().toLocaleDateString()}\n`));
+rbn('insNumber',  () => { document.getElementById('slideNumbers').checked = true; showToast('የስላይድ ቁጥር ነቅቷል', 'success'); });
+rbn('insVideo',   () => showToast('💡 ቪዲዮ ለመጨመር Record ታብ ይጠቀሙ', 'success'));
+rbn('insAudio',   () => { RibbonManager.switchTab('record'); Recorder.start('audio'); });
+rbn('insLink',    () => { const url = prompt('ሊንክ ይጻፉ:'); if (url) insertText(` [${url}](${url}) `); });
+rbn('insEquation',() => insertSymbol('∑ ∫ √ π ∞ ≠ ≤ ≥ ± × ÷ ∂ ∆'));
+rbn('insSymbol',  () => insertSymbol('© ® ™ § ¶ † ‡ • ★ ☆ ✓ ✗ → ← ↑ ↓'));
+
+function insertSymbol(symbols) {
+  const choice = prompt('ምልክት ይምረጡና ይቅዱ:\n\n' + symbols);
+  if (choice) insertText(choice);
+}
+function insertText(t) {
+  const ta = document.getElementById('rawText');
+  const pos = ta.selectionStart;
+  ta.value = ta.value.substring(0, pos) + t + ta.value.substring(pos);
+  ta.focus();
+  ta.setSelectionRange(pos + t.length, pos + t.length);
+}
+
+// DESIGN tab
+document.getElementById('dsnBg').addEventListener('input', e => {
+  document.getElementById('bgPreset').value = 'custom';
+  document.getElementById('bgCustomColor').value = e.target.value;
+  document.getElementById('bgCustomColor').style.display = 'block';
+});
+document.getElementById('dsnTitle').addEventListener('input', e => {
+  document.getElementById('titleColor').value = e.target.value;
+});
+document.getElementById('dsnAccent').addEventListener('input', e => {
+  document.getElementById('accentColor').value = e.target.value;
+});
+document.getElementById('dsnLayout').addEventListener('change', e => {
+  document.getElementById('pptLayout').value = e.target.value;
+});
+
+// TRANSITIONS / ANIMATIONS handled in their galleries
+document.getElementById('transDuration').addEventListener('change', e => {
+  window._transitionDuration = parseFloat(e.target.value);
+});
+
+// SLIDESHOW tab
+rbn('ssStart',     () => SlideShow.start(0));
+rbn('ssCurrent',   () => SlideShow.start(0));
+rbn('ssAuto',      () => { document.getElementById('ssAutoSec').focus(); SlideShow.toggleAutoplay(); });
+rbn('ssFullscreen',() => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen().catch(()=>{});
+});
+rbn('ssPresenter', () => { SlideShow.start(0); showToast('👨‍🏫 Presenter view', 'success'); });
+
+// RECORD tab
+rbn('recStart',    () => Recorder.start('audio'));
+rbn('recStop',     () => Recorder.stop());
+rbn('recPause',    () => Recorder.pause());
+rbn('recScreen',   () => Recorder.start('screen'));
+rbn('recCam',      () => Recorder.start('camera'));
+rbn('recDownload', () => Recorder.downloadAll());
+rbn('recClear',    () => Recorder.clearAll());
+
+// REVIEW tab
+rbn('revSpell', () => showToast('💡 ብራውዘሩ ፊደሎችን በራስ-ሰር ይመረምራል (Ctrl+Shift በ textarea ላይ)', 'success'));
+rbn('revWordCount', () => {
+  let total = 0;
+  state.parsed.forEach(p => { total += (p.rawText || '').split(/\s+/).filter(Boolean).length; });
+  total += (document.getElementById('rawText').value || '').split(/\s+/).filter(Boolean).length;
+  showToast(`📊 ጠቅላላ ቃላት: ${total}`, 'success');
+});
+rbn('revNewComment', () => {
+  document.getElementById('commentsCard').style.display = 'block';
+  document.getElementById('commentsCard').scrollIntoView({behavior:'smooth'});
+  document.getElementById('cmtAuthor').focus();
+});
+rbn('revShowComments', () => {
+  document.getElementById('commentsCard').style.display = 'block';
+  document.getElementById('commentsCard').scrollIntoView({behavior:'smooth'});
+  Comments.render();
+});
+rbn('revClearComments', () => {
+  if (confirm('ሁሉንም አስተያየት ለማጥፋት እርግጠኛ ነዎት?')) Comments.clearAll();
+});
+rbn('revTranslate', () => {
+  document.getElementById('translateTo').value = document.getElementById('revTransLang').value;
+  showToast('🌐 ትራንስሌሽን ተዘጋጅቷል — "ቀይር" ሲጫኑ ይተገበራል', 'success');
+});
+
+// VIEW tab
+rbn('viewNormal',  () => { document.getElementById('stageCard').style.display = 'none'; window.scrollTo({top:0,behavior:'smooth'}); });
+rbn('viewOutline', () => { document.getElementById('previewBtn').click(); });
+rbn('viewSorter',  () => Workspace.refresh());
+rbn('viewReader',  () => SlideShow.start(0));
+rbn('viewDark',    () => document.getElementById('themeToggle').click());
+let _zoom = 100;
+rbn('viewZoomIn',  () => { _zoom = Math.min(150, _zoom + 10); document.body.style.zoom = _zoom + '%'; showToast(`🔍 ${_zoom}%`, ''); });
+rbn('viewZoomOut', () => { _zoom = Math.max(50, _zoom - 10); document.body.style.zoom = _zoom + '%'; showToast(`🔍 ${_zoom}%`, ''); });
+rbn('viewRail',    () => Workspace.refresh());
+rbn('viewSettings',() => document.getElementById('step2').scrollIntoView({behavior:'smooth'}));
+
+// FILE tab
+rbn('fileNew',       () => document.getElementById('resetBtn').click());
+rbn('fileOpen',      () => document.getElementById('fileInput').click());
+rbn('fileSave',      () => document.getElementById('convertBtn').click());
+rbn('fileExportPDF', () => {
+  showToast('💡 PDF ለማውጣት: ስላይድ ሾው ይጀምሩ → ብራውዘር Print → Save as PDF', 'success');
+  setTimeout(() => SlideShow.start(0), 800);
+});
+rbn('fileExportJSON',() => {
+  const settings = {
+    title: document.getElementById('pptTitle').value,
+    author: document.getElementById('pptAuthor').value,
+    theme: document.getElementById('pptTheme').value,
+    font: document.getElementById('pptFont').value,
+    fontSizeTitle: document.getElementById('fontSizeTitle').value,
+    fontSizeBody: document.getElementById('fontSizeBody').value,
+    bulletStyle: document.getElementById('bulletStyle').value,
+    animation: document.getElementById('animation').value,
+    bgColor: document.getElementById('bgPreset').value,
+    textColor: document.getElementById('textColor').value,
+    titleColor: document.getElementById('titleColor').value,
+    accentColor: document.getElementById('accentColor').value,
+    comments: Comments.getAll()
+  };
+  const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'smart-ppt-settings.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ ቅንብር JSON ተወርዷል', 'success');
+});
+rbn('filePrint',     () => window.print());
+rbn('fileShare',     async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Smart PPT Converter',
+        text: 'ኤክሴል፣ ዎርድ፣ ፒዲኤፍ ወደ ፓወር ፖይንት የሚቀይር ኦፍላይን አፕ',
+        url: location.href
+      });
+    } catch (e) {}
+  } else {
+    navigator.clipboard.writeText(location.href);
+    showToast('🔗 ሊንክ ተቀድቷል', 'success');
+  }
+});
+rbn('fileInstall',   () => PWAManager.promptInstall());
+
+/* =====================================================================
+  13) FAB (Floating Action Button)
+   ===================================================================== */
+document.getElementById('fab').addEventListener('click', () => {
+  document.getElementById('convertBtn').click();
+});
+
+/* =====================================================================
+  14) Keyboard Shortcuts
+   ===================================================================== */
+document.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('slideshowOverlay');
+  if (overlay.classList.contains('show')) return;
+
+  // Ctrl/Cmd + S = Save (convert)
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    document.getElementById('convertBtn').click();
+  }
+  // Ctrl/Cmd + O = Open file
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+    e.preventDefault();
+    document.getElementById('fileInput').click();
+  }
+  // Ctrl/Cmd + P = Preview
+  else if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+    e.preventDefault();
+    document.getElementById('previewBtn').click();
+  }
+});
+
+/* =====================================================================
+  15) Quick-jump anchor support (#convert)
+   ===================================================================== */
+if (location.hash === '#convert') {
+  setTimeout(() => document.getElementById('convertBtn').scrollIntoView({behavior:'smooth'}), 500);
+}
+
+/* =====================================================================
+  Done! Final welcome message
+   ===================================================================== */
+setTimeout(() => {
+  console.log('%c✅ Smart PPT Converter v2.0 Ready', 'color:#10b981; font-size:16px; font-weight:bold;');
+  console.log('Keyboard shortcuts: Ctrl+S (save), Ctrl+O (open), F5 (slideshow), Esc (exit)');
+}, 1000);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0597d14ecb27130',t:'MTc4MDQzNTA4NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
